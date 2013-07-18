@@ -1,0 +1,20 @@
+
+Supported functions:
+
+- filter_contains(tuples, value) : tuples
+tuples = [(a:x, b:z), (a:z, b:y, c:z), (a:x, c:x), (b:y, d:z)]
+filter(tuples, x) -> [(a:x, b:z), (a:x, c:x)]
+
+- group_by(tuples, key) : tuples of tuples
+tuples = [(a:x, b:z), (a:z, b:y, c:z), (a:x, c:x), (b:y, d:z)]
+group_by(tuples, a) -> [(a=x, [...]), (a=z, [...]), (a=NULL, [...])]
+
+- count(sets_of_tuples)
+set_of_tuples = [(a:x, b:z), (a:z, b:y, c:z), (a:x, c:x), (b:y, d:z)]
+count(sets_of_tuples) = [4]
+set_of_tuples = [(a=x, count([...])), (a=z, count([...])), (a=NULL, count([...]))]
+count(sets_of_tuples) = [(a=x, ?), (a=z, ?)]
+
+- sort_ascending(tuples, key)
+
+

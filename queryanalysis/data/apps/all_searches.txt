@@ -1,0 +1,368 @@
+`cisco_firewall` |  bin _time span=5m | stats count by eventtype, src_ip, dest_ip, host,log_level_desc,event_desc, _time
+search eventtype=cisco_firewall | bin _time span=15m | sistats count by eventtype, src_ip, dest_ip, host,log_level_desc,event_desc, _time
+search eventtype=cisco_firewall | timechart count by eventtype
+search eventtype=cisco_firewall eventtype=firewall-deny | timechart count by host 
+search eventtype=cisco_firewall eventtype=firewall-accept | timechart count by host 
+search eventtype=cisco_firewall | top src_ip showperc=f
+search eventtype=cisco_firewall  | top dest_ip showperc=f
+search eventtype=cisco_firewall
+`Percent_CPU_by_Host(*)`
+`Percent_Load_by_Host(*)`
+`Top_5_CPU_Processes_by_Host(*)`
+`Number_Threads_by_Host(*)`
+`Number_Processes_by_Host(*)`
+`Number_Processes_by_Host(*)`
+`CPU_Usage_by_Command_for_Host(*)` 
+`CPU_Usage_by_User_for_Host(*)` 
+`CPU_Usage_by_State_for_Host(*)` 
+`Top_CPU_Processes_for_Host(*)`
+search index=os source=ps | multikv | timechart avg(pctCPU) by USER useother=F limit=10
+search index=os source=ps | multikv | timechart sum(CPUTIME) by USER where sum > 0
+search index=os source=lsof | multikv | search FD=txt TYPE=REG AND NOT (COMMAND=lsof OR COMMAND=lsof.sh OR COMMAND=iostat OR COMMAND=iostat.sh OR COMMAND=sar OR COMMAND=awk OR COMMAND=tee) | timechart count by COMMAND useother=F limit=10
+`Mem_Usage_for_Host(*)`
+`Mem_Usage_by_Command_for_Host(*)`
+`Top_Mem_Command_for_Host(*)`
+`Top_Users_of_VM_for_Host(*)`
+`Percent_MEM_by_Host(*)`
+`Top_Mem_Processes_by_Host(*)`
+`Memory_Hardware_by_Host(*)`
+`Top_Memory_Users_by_Command_by_Host(*)` 
+`Disk_Used_Pct_by_Host(*)`
+`Open_Files_by_Command_and_Host(*)`
+`Open_Files_by_Type_and_Host(*)`
+search index=os sourcetype=vmstat
+search index=os sourcetype=ps
+search index=os sourcetype=top
+search index=os sourcetype=hardware
+search index=os sourcetype=iostat
+search index=os sourcetype=netstat
+search index=os sourcetype=protocol
+search index=os sourcetype=openPorts
+search index=os sourcetype=time 
+search index=os sourcetype=lsof
+search index=os sourcetype=df
+search index=os sourcetype=who
+search index=os sourcetype=usersWithLoginPrivs
+search index=os sourcetype=lastlog
+search index=os sourcetype=interfaces
+search index=os sourcetype=cpu
+search index=os sourcetype=rlog
+search index=os sourcetype=package
+`User_Sessions_by_Host(*)` 
+`Failed_Logins_by_Host(*)`
+search index=os eventtype=useradd OR eventtype="useradd-suse"
+search index=os eventtype=userdel
+search index=os eventtype=groupadd OR eventtype="groupadd-suse"
+search index=os eventtype=groupdel
+search index=os eventtype=linux-password-change
+search index=os eventtype=linux-password-change-failed
+search index=os eventtype="Failed_SU"
+`Thruput_by_Interface_by_Host(*)`
+`Frequently_Open_Ports_by_Host(*)`
+`Top_Inet_Addresses_by_Host(*)`
+`Open_Ports_by_Host(*)`
+`Addresses_by_Host(*)`
+`Sockets_by_State_by_Host(*)`
+search index=os source=ps | multikv | timechart avg(VSZ_KB) by USER useother=F limit=10 
+search index=os source=vmstat | fields + total_memory,used_memory,active_memory,inactive_memory,free_memory,buffer_memory,swap_cache,total_swap,used_swap,free_swap,pages_paged_in,pages_paged_out,pages_swapped_in,pages_swapped_out 
+search index="os" source="vmstat" | multikv fields memFreePct, memUsedPct | timechart avg(memUsedPct) avg(memFreePct) | rename avg(memUsedPct) as "Used Mem", avg(memFreePct) as Free_Mem 
+search index="os" sourcetype=ps | multikv | timechart avg(RSZ_KB) by COMMAND | rename avg(RSZ_KB) as ResidentSize(kb)
+search index="os" sourcetype=ps | multikv | timechart avg(VSZ_KB) by COMMAND | rename avg(VSZ_KB) as ResidentSize(kb)
+search index=os eventtype="fschange_add_file"
+search index=os eventtype="fschange_delete_file"
+search index=os eventtype="fschange_modify_file"
+search index="os" sourcetype="package" | dedup host
+search index=os sourcetype=hardware | dedup host
+| metadata type=sources index=os | typer | search eventtype=nix-all-logs
+| metadata type=sources index=os | typer |search eventtype=nix_configs 
+search index="os" eventtype=nix_errors | strcat source "@" host changelist | timechart count by changelist
+search index="os" eventtype="nix_configs" | strcat source "@" host changelist | timechart count by changelist 
+search sourcetype=syslog error OR failed OR severe NOT assignment starthoursago=1 | fields +_raw
+search index=os source=ps | multikv | timechart avg(RSZ_KB) by COMMAND
+search index=os source=top | multikv | timechart avg(pctCPU) by COMMAND
+search index=os source=iostat | multikv | timechart avg(rReq_PS) avg(wReq_PS)
+search index=os source=iostat | multikv | timechart avg(wReq_PS) by host
+search index=os source=lsof | multikv | timechart count(USER) by USER
+search index=os source=netstat | multikv | timechart count(Proto) by Proto
+search index=os source=netstat | multikv | timechart count(Type) by Type
+search index=os source=ps | multikv | timechart avg(pctCPU) by COMMAND
+search index=os source=ps | multikv | chart avg(RSZ_KB) by USER
+search index=os source=ps | multikv |  timechart avg(RSZ_KB) by COMMAND
+search index=os source=top | multikv | timechart avg(pctCPU) by host
+search index=os source=top | multikv | timechart avg(RSZ_KB) by COMMAND
+search index=os source=vmstat | multikv | timechart avg(memFreeMB) by host
+search index=os source=vmstat | multikv | timechart avg(memTotalMB) by host
+search sourcetype="WMI:CPUTime" | timechart avg(PercentProcessorTime)
+search source="wineventlog:*" earliest_time="-24h"
+search source="ActiveDirectory" (objectguid OR guid) | eval guid_lookup = upper(guid_lookup) | fields + guid_lookup, dcName | dedup guid_lookup | fields - _time,_kv,_meta,_raw,_serial,_subsecond
+search source="ActiveDirectory" objectsid | fields + sid_lookup, cn, dcName | dedup sid_lookup | fields - _time,_kv,_meta,_raw,_serial,_subsecond
+search source="*\windowsupdate.log" Failure "Content Install" "Installation Failure" | fillnull value=Unspecified kb_num | chart count,max(_time) as latest_failure_time by kb_num | sort - latest_failure_time | convert ctime(latest_failure_time)
+search source="*\windowsupdate.log" Success "Content Install" "Installation Successful" | fillnull value=Unspecified kb_num | chart count,max(_time) as latest_install_time by kb_num | sort - latest_install_time | convert ctime(latest_install_time)
+search source="*\windowsupdate.log" Success "Content Install" "Installation Successful" | stats count by host
+search source="*\windowsupdate.log" Failure "Content Install" "Installation Failure" | stats count by host
+search NOT [ search source="*\windowsupdate.log" Success "Content Install" "Installation Successful" | dedup kb_num | fields + kb_num ] source="*\windowsupdate.log" Failure "Content Install" "Installation Failure" | stats count,max(_time) as latest_failure_time by kb_num | convert ctime(latest_failure_time)
+search source="WMI:LocalPhysicalDisk" OR source="WMI:CPUTime" OR source="WMI:Memory" | timechart avg(PercentProcessorTime),avg(AvailableMBytes),avg(PercentDiskTime)
+search source="wmi:cputime" | stats avg(PercentProcessorTime) as avgCPUTime,avg(PercentUserTime) as avgUserTime | eval avgCPUTime=round(avgCPUTime,1) | eval avgUserTime=round(avgUserTime,1)
+search source="wmi:cputime" | eval range=case(PercentProcessorTime<80, "OK (<80%)", PercentProcessorTime<95, "Warn (80%-94%)", 1==1, "High (95%+)") | chart count by range
+`top_process_by_mem`
+`top_process_by_cpu`
+search source=wmi:localphysicaldisk ("Name=_Total" OR "Name=Total") | timechart avg(CurrentDiskQueueLength) as "Disk Queue Len", avg(PercentDiskTime) as "Disk Busy %"
+search source="wineventlog:security" EventCode=528 OR EventCode=540 OR EventCode=4624 | `get_user_name` | stats count by User_Name
+search source="wineventlog:security" ("EventCode=4625") OR ("EventCode=529" OR "EventCode=530" OR "EventCode=531" OR "EventCode=532" OR "EventCode=533" OR "EventCode=534" OR "EventCode=535" OR "EventCode=536" OR "EventCode=537" OR "EventCode=539") (Logon_Type=3 OR Logon_Type=8 OR Logon_Type=10) | `get_user_name` | chart count by User_Name
+search source=wineventlog:security (EventCode=576 OR EventCode=4672 OR EventCode=577 OR EventCode=4673 OR EventCode=578 OR EventCode=4674) | `get_user_name` | chart count by User_Name
+search source=wineventlog:system "EventCode=1076" OR "EventCode=6008" | rex field=Message "(?m)(?<cause>.*)$" | fields + _time,Comment,cause
+search source=wineventlog:system terminated ("EventCode=7034" OR "EventCode=7031") | rex field=Message "(?i)^The (?<Service_Name>.*) service terminated unexpectedly.\s+It has done this (?<num_failures>\d+)" | stats sum(num_failures) by Service_Name
+search source=wineventlog:system SourceName="Service Control Manager" "service failed to start" | rex field=Message "^The (?<Service_Name>.*) service failed" | chart count by Service_Name
+search source="wineventlog:*" | stats count count(eval(Type="Warning")) as warnings count(eval(Type="Error")) as errors
+search source=WMI:Memory OR source=WMI:CPUTime OR source=WMI:LocalPhysicalDisk | sitimechart span=1m avg(PercentProcessorTime) as "CPU",avg(PercentCommittedBytesInUse) as "Memory",avg(PercentDiskTime) as "Disk"
+`get_external_bot_traffic` | eval eventtype=mvfilter(match(eventtype, "ua\-bot\-.*"))| top eventtype 
+search eventtype=pageview | top uri_path 
+`timerange_hack` source="Pageview*"| top uri 
+`timerange_hack` source="Assets documents*" | top uri_path 
+`timerange_hack` source="Assets media*" | top uri_path
+search eventtype=pageview (method=GET OR method=POST)  | top clientip 
+`timerange_hack_nofivemin` source="User session nonsingle eventcount*"| makemv timeandduration | mvexpand timeandduration | eval _time=tonumber(substr(timeandduration,1,10)) | eval duration = tonumber(substr(timeandduration,12))/60 | timechart  perc25(duration) as "25th Percentile", median(duration) as "Median", perc75(duration) as "75th Percentile"
+`timerange_hack` source="Referer phrases*" | top q  
+`timerange_hack` source="Referer phrases*" | rex field=q max_match=20 "(?<keywords>\w+)" | top limit=100 keywords | lookup stopwords keywords | fillnull alwaysone | search alwaysone=0 | sort limit=10 - count | fields - alwaysone
+search eventtype=pageview eventtype=ua-feedreader* | eval eventtype=mvfilter(match(eventtype, "ua\-feedreader.*"))| top eventtype 
+`timerange_hack_nofivemin` source="User session visitor source*" | eval eventcount = myeventcount | eval user_type=case(eventcount=1, "bounce", eventcount<=5, "2-5 pages", eventcount<=10,"6-10 pages", eventcount>10, ">10 pages") | stats count by user_type
+`timerange_hack` source="Organic brand*"| top q
+`timerange_hack` source="Organic nonbrand*"| top q
+`timerange_hack` source="Brand*" | timechart limit=5 sum(mycount) BY q | fields - OTHER
+`timerange_hack` source="Referer category*" | eval eventtype = myeventtype | top eventtype
+`timerange_hack` source="Referer breakdown*" | eval eventtype = myeventtype | top referer_domain BY eventtype
+`timerange_hack` source="User session browser stats*"| makemv uniqip | top browser
+`timerange_hack` source="User session mobile stats*"| makemv uniqip | top platform
+`timerange_hack` source="User session handheld count*" | makemv myips | stats dc(myips) as count by ismobile
+`timerange_hack` source="User session demographics*" | lookup local=true geoip clientip | stats count BY client_country, client_region
+`timerange_hack_nofivemin` source="User session visitor source*" | timechart eval(sum(myeventcount)) AS pageviews, dc(clientip) AS unique_visitors, eval((sum(myeventcount))/dc(clientip)) AS avg_pageviews
+`timerange_hack_nofivemin` source="User session visitor source*" | eval eventcount=myeventcount  | makemv delim=" " myeventtypes | eval eventtype=myeventtypes | eval eventtype=mvfilter(match(eventtype, "visitor\-type\-.*")) | eval eventtype=mvindex(eventtype, 0) |  stats count, avg(myduration) AS avg_duration, avg(eventcount) AS avg_eventcount BY eventtype, _time
+`get_user_sessions` | search eventcount>1 eventtype=goal-* | eval landing_page=mvindex(uri_path, 0) | top landing_page
+`timerange_hack_nofivemin` source="User session nonsingle eventcount*" | makemv landing_page | mvexpand landing_page | top landing_page
+`timerange_hack_nofivemin` source="User session nonsingle eventcount*" | makemv exit_page | mvexpand exit_page | top exit_page
+`timerange_hack` source="Web Traffic goodstatus*" | eval status=toString(floor(status/100))+"xx"  | stats values(myclientip) as myips sum(hits) as myhits by uri, status | mvexpand myips | stats dc(myips) as "unique ips" max(myhits) as "total count" by uri, status
+`timerange_hack` (source="Web Traffic goodstatus fivemin summary*" OR source="Web Traffic goodstatus hourly summary*" OR source="Web Traffic goodstatus daily summary*") | lookup httpstatus status | eval mystatus=status+"-"+status_description | timechart sum(hits) BY mystatus
+`timerange_hack` source="Web Traffic badstatus*" | eval status=toString(floor(status/100))+"xx"  | stats values(myclientip) as myips sum(hits) as myhits by uri, status | mvexpand myips | stats dc(myips) as "unique ips" max(myhits) as "total count" by uri, status
+`timerange_hack` (source="Web Traffic badstatus fivemin summary*" OR source="Web Traffic badstatus hourly summary*" OR source="Web Traffic badstatus daily summary*") | lookup httpstatus status | eval mystatus=status+"-"+status_description | timechart sum(hits) BY mystatus
+`timerange_hack` source="Web Traffic by host*" | timechart sum(hits) BY myhost | rename myhost as host
+`timerange_hack` source="Web Traffic by bots*" | eval bots=substr(bots,8)| timechart sum(hits) by bots
+search earliest=-48h@h latest=now `timerange_hack` source="Web Traffic badstatus*" | eval status=toString(floor(status/100))+"xx"  | stats values(myclientip) as myips sum(hits) as myhits min(earliest_hit) as first, max(latest_hit) as last by uri, status | mvexpand myips | stats dc(myips) as "unique ips" max(myhits) as "total count" min(first) as first max(last) as last by uri, status | eval dif=last-first | search dif<86400 "total count">10
+`timerange_hack` source="User session demographics*"| stats min(earliestvisit) as firstvisit by clientip | lookup userlistbyclientip.csv clientip OUTPUT firstvisit as earliestvisit | eval firstvisit=if(isnull(earliestvisit),firstvisit,earliestvisit) | addinfo | eval isnew=if(firstvisit>=info_min_time, "New Visitors" , "Returning Visitors") | stats count by isnew
+`get_user_sessions` | stats min(_time) as firstvisit by clientip | inputlookup append=t userlistbyclientip.csv | stats min(firstvisit) as firstvisit by clientip | fields clientip firstvisit | outputlookup userlistbyclientip.csv
+search eventtype=web-traffic | stats count by source | eval sourcename=" " | inputlookup append=t sourcenames.csv | stats last(sourcename) as sourcename by source | outputlookup sourcenames.csv
+search eventtype="web-traffic-external" status>100 status<300 | `sourcename_lookup` | stats count as "hits" min(_time) as earliest_hit, max(_time) as latest_hit by uri, status, sourcename
+search eventtype="web-traffic-external" status>=300 | `sourcename_lookup` | stats count as "hits" min(_time) as earliest_hit, max(_time) as latest_hit by uri, status, sourcename
+search eventtype="web-traffic-external" status>100 status<300 | `sourcename_lookup` | stats values(clientip) as myclientip by uri, status, sourcename 
+search eventtype="web-traffic-external" status>=300 | `sourcename_lookup`  | stats values(clientip) as myclientip by uri, status, sourcename 
+`get_external_bot_traffic` | `sourcename_lookup`  | eval bots=mvfilter(match(eventtype, "ua\-bot\-.*"))| stats count as hits by bots, sourcename
+search eventtype="web-traffic-external" | `sourcename_lookup`  | eval myhost=host | stats count as "hits" by myhost, sourcename 
+search eventtype=pageview eventtype=ua-browser-* | `sourcename_lookup` | stats min(_time) as earliestvisit first(sourcename) as sourcename by clientip
+search eventtype=pageview | eval ismobile=if(match(eventtype,"ua-mobile-*"),"Handheld","PC") | `sourcename_lookup` | stats values(clientip) as myips by ismobile, sourcename
+search eventtype=pageview eventtype=ua-mobile* | eval platform=substr(mvfilter(match(eventtype, "ua\-mobile\-.*")),11) |  `sourcename_lookup` | stats values(clientip) as uniqip by platform, sourcename
+search eventtype=pageview eventtype=ua-browser* | eval browser=substr(mvfilter(match(eventtype, "ua\-browser\-.*")),12) |  `sourcename_lookup` | stats values(clientip) as uniqip by browser, sourcename
+search eventtype=pageview | `sourcename_lookup`  | sitop uri by sourcename
+`get_organic_search` | `sourcename_lookup`  | search eventtype=brand-name | sitop q by sourcename
+`get_organic_search` | `sourcename_lookup`  | search eventtype!=brand-name | sitop q by sourcename
+search eventtype=brand-name `get_organic_search` | `sourcename_lookup`  | stats count as mycount BY q, sourcename | fields - OTHER
+search eventtype=resourceview method=GET status=200 eventtype=file-documents | `sourcename_lookup`  | eval uri_path=replace(uri_path, "//", "/") | search uri_path!="*robots.txt" | sitop uri_path by sourcename
+search eventtype=resourceview method=GET  uri!="*flash_components*" eventtype=file-media | `sourcename_lookup`  | sitop uri_path by sourcename
+search eventtype=pageview eventtype=ua-browser-* eventtype=*-referer NOT eventtype=internal-referer| dedup clientip | `sourcename_lookup`  | eval eventtype=mvfilter(match(eventtype, ".*\-referer$"))| eval myeventtype=eventtype | sitop myeventtype by sourcename
+search eventtype=pageview eventtype=ua-browser-* eventtype=*-referer NOT referer="-"  | `sourcename_lookup`  | eval eventtype=mvfilter(match(eventtype, ".*\-referer$")) | eval referer_domain=if(match(referer_domain, ".*google|doubleclick.*"), "*google*", referer_domain)| eval myeventtype=eventtype | sitop referer_domain BY myeventtype, sourcename
+search eventtype=pageview eventtype=ua-browser-* eventtype=search-referer (q=* OR p=*) | `sourcename_lookup`  | eval q=if(isnull(q) AND isnotnull(p), p, q)  | eval q=trim(lower(urldecode(q)))  | stats count by q, sourcename
+index="wi_summary_fivemin" source="Web Traffic goodstatus fivemin summary*"| stats sum(hits) as hits min(earliest_hit) as earliest_hit max(latest_hit) as latest_hit by uri, status, sourcename
+index="wi_summary_fivemin" source="Web Traffic badstatus fivemin summary*"| stats sum(hits) as hits min(earliest_hit) as earliest_hit max(latest_hit) as latest_hit by uri, status, sourcename 
+index="wi_summary_fivemin" source="Web Traffic goodstatus by clientip*" | stats values(myclientip) as myclientip by uri, status, sourcename
+index="wi_summary_fivemin" source="Web Traffic badstatus by clientip*" | stats values(myclientip) as myclientip by uri, status, sourcename 
+index="wi_summary_fivemin" source="Web Traffic by bots*"| stats sum(hits) as hits by bots, sourcename
+index="wi_summary_fivemin" source="Web Traffic by host*"| stats sum(hits) as hits by myhost, sourcename
+`get_user_sessions` | stats max(duration) as myduration max(eventcount) as myeventcount values(eventtype) as myeventtypes first(sourcename) as sourcename by clientip, _time
+`get_user_sessions` | search eventcount>1 | stats max(duration) as duration first(uri_path) as landing_page last(uri_path) as exit_page first(sourcename) as sourcename by clientip, _time  | eval timeandduration=_time+":"+duration | stats list(timeandduration) as timeandduration list(landing_page) as landing_page list(exit_page) as exit_page by sourcename
+index="wi_summary_fivemin" source="User session demographics*"  | stats min(earliestvisit) as earliestvisit first(sourcename) as sourcename by clientip
+index="wi_summary_fivemin" source="User session handheld count*" | stats values(myips) as myips by ismobile, sourcename
+index="wi_summary_fivemin" source="User session mobile stats*"  | stats values(uniqip) as uniqip by platform, sourcename
+index="wi_summary_fivemin" source="User session browser stats*" | stats values(uniqip) as uniqip by browser, sourcename
+index="wi_summary_fivemin" source="Pageview*"| sitop uri by sourcename
+index="wi_summary_fivemin" source="Organic brand search fivemin summary*"| sitop q by sourcename
+index="wi_summary_fivemin" source="Organic nonbrand search fivemin summary*"| sitop q by sourcename
+index="wi_summary_fivemin" source="Brand search fivemin summary*" | stats sum(mycount) as mycount BY q, sourcename | fields - OTHER
+index="wi_summary_fivemin" source="Assets documents*" | sitop uri_path by sourcename
+index="wi_summary_fivemin" source="Assets media*" | sitop uri_path by sourcename
+index="wi_summary_fivemin" source="Referer category*" | sitop myeventtype by sourcename
+index="wi_summary_fivemin" source="Referer breakdown*" | sitop referer_domain BY myeventtype, sourcename
+index="wi_summary_fivemin" source="Referer phrases*" | stats count by q, sourcename
+index="wi_summary_hourly" source="Web Traffic goodstatus hourly summary*"| stats sum(hits) as hits min(earliest_hit) as earliest_hit max(latest_hit) as latest_hit by uri, status, sourcename
+index="wi_summary_hourly" source="Web Traffic badstatus hourly summary*"| stats sum(hits) as hits min(earliest_hit) as earliest_hit max(latest_hit) as latest_hit by uri, status, sourcename 
+index="wi_summary_hourly" source="Web Traffic goodstatus by clientip*" | stats values(myclientip) as myclientip by uri, status, sourcename
+index="wi_summary_hourly" source="Web Traffic badstatus by clientip*" | stats values(myclientip) as myclientip by uri, status, sourcename 
+index="wi_summary_hourly" source="Web Traffic by bots*"| stats sum(hits) as hits by bots, sourcename
+index="wi_summary_hourly" source="Web Traffic by host*"| stats sum(hits) as hits by myhost, sourcename
+index="wi_summary_hourly" source="User session visitor source*"  | transaction clientip maxpause=1h keepevicted=t mvlist=t | stats max(myduration) as myduration max(myeventcount) as myeventcount values(myeventtypes) as myeventtypes first(sourcename) as sourcename by clientip, _time
+index="wi_summary_hourly" source="User session nonsingle eventcount*"  | stats list(timeandduration) as timeandduration list(landing_page) as landing_page list(exit_page) as exit_page  by sourcename
+index="wi_summary_hourly" source="User session demographics*"  | stats min(earliestvisit) as earliestvisit first(sourcename) as sourcename by clientip
+index="wi_summary_hourly" source="User session handheld count*" | stats values(myips) as myips by ismobile, sourcename
+index="wi_summary_hourly" source="User session mobile stats*"  | stats values(uniqip) as uniqip by platform, sourcename
+index="wi_summary_hourly" source="User session browser stats*" | stats values(uniqip) as uniqip by browser, sourcename
+index="wi_summary_hourly" source="Pageview*"| sitop uri by sourcename
+index="wi_summary_hourly" source="Organic brand search*"| sitop q by sourcename
+index="wi_summary_hourly" source="Organic nonbrand search*"| sitop q by sourcename
+index="wi_summary_hourly" source="Brand search*" | stats sum(mycount) as mycount BY q, sourcename | fields - OTHER
+index="wi_summary_hourly" source="Assets documents*" | sitop uri_path by sourcename
+index="wi_summary_hourly" source="Assets media*" | sitop uri_path by sourcename
+index="wi_summary_hourly" source="Referer category*" | sitop myeventtype by sourcename
+index="wi_summary_hourly" source="Referer breakdown*" | sitop referer_domain BY myeventtype, sourcename
+index="wi_summary_hourly" source="Referer phrases*" | stats count by q, sourcename
+search eventtype=web-traffic-external status>100 status<300 | `sourcename_lookup` | eval status=toString(floor(status/100))+"xx" | stats dc(clientip) as "unique ips" count as "total count" by uri, status
+search eventtype="web-traffic-external" status>100 status<300 | `sourcename_lookup` | lookup httpstatus status | eval mystatus=status+"-"+status_description | timechart count BY mystatus
+search eventtype=web-traffic-external status>=300 status<600 | `sourcename_lookup` | eval status=toString(floor(status/100))+"xx" | stats dc(clientip) as "unique ips" count as "total count" by uri, status
+search eventtype="web-traffic-external" status>=300 status<600 | `sourcename_lookup` | lookup httpstatus status | eval mystatus=status+"-"+status_description | timechart count BY mystatus
+search eventtype="web-traffic-external" | `sourcename_lookup` | timechart count BY host
+`get_external_bot_traffic` | `sourcename_lookup` | eval eventtype=mvfilter(match(eventtype, "ua\-bot\-.*"))| eval bots=substr(eventtype,8)| timechart count BY bots
+search eventtype="web-traffic-external" status="4*" OR status="5*" OR status="3*" | `sourcename_lookup` | eval status=toString(floor(status/100))+"xx"| stats dc(clientip) as "unique ips" count as "total count", min(_time) as first, max(_time) as last BY uri, status | eval dif=last-first | search dif<86400 "total count">10 
+`get_organic_search` | `sourcename_lookup`  | search eventtype=brand-name | search q!=NULL | top q
+`get_organic_search` | `sourcename_lookup`  | search eventtype!=brand-name | search q!=NULL | top q
+search eventtype=brand-name `get_organic_search` | `sourcename_lookup`  | search q!=NULL | timechart limit=5 count BY q | fields - OTHER
+search eventtype=pageview eventtype=ua-browser-* eventtype=*-referer NOT eventtype=internal-referer| dedup clientip | `sourcename_lookup`  | eval eventtype=mvfilter(match(eventtype, ".*\-referer$"))|top eventtype
+search eventtype=pageview eventtype=ua-browser-* eventtype=*-referer NOT referer="-"  | `sourcename_lookup`  | eval eventtype=mvfilter(match(eventtype, ".*\-referer$")) | eval referer_domain=if(match(referer_domain, ".*google|doubleclick.*"), "*google*", referer_domain)| top referer_domain BY eventtype
+search eventtype=pageview eventtype=ua-browser* | dedup clientip | `sourcename_lookup`  | eval eventtype=mvfilter(match(eventtype, "ua\-browser\-.*")) | eval browser=substr(eventtype,12) | top browser
+search eventtype=pageview eventtype=ua-mobile* | dedup clientip | `sourcename_lookup`  | eval eventtype=mvfilter(match(eventtype, "ua\-mobile\-.*")) | eval platform=substr(eventtype,11) | top platform
+search eventtype=pageview | dedup clientip | `sourcename_lookup` | eval ismobile=if(match(eventtype,"ua-mobile-*"),"Handheld","PC") | stats count by ismobile
+eventtype=pageview eventtype=ua-browser*  | dedup clientip | `sourcename_lookup`  | lookup local=true geoip clientip | stats count BY client_country, client_region
+eventtype=pageview eventtype=ua-browser* | `sourcename_lookup`  | timechart count AS pageviews, dc(clientip) AS unique_visitors, eval(count/dc(clientip)) AS avg_pageviews
+`get_user_sessions` | eval eventtype=mvfilter(match(eventtype, "visitor\-type\-.*")) | eval eventtype=mvindex(eventtype, 0) |  stats count, avg(duration) AS avg_duration, avg(eventcount) AS avg_eventcount BY eventtype, _time 
+`get_user_sessions` | search eventcount>1 | eval landing_page=mvindex(uri_path, 0) |  fields landing_page sourcename | top landing_page
+`get_user_sessions` | search eventcount>1 | eval exit_page=mvindex(uri_path, -1) | fields exit_page sourcename | top exit_page
+`get_user_sessions` | stats min(_time) as firstvisit by clientip | lookup userlistbyclientip.csv clientip OUTPUT firstvisit as earliestvisit | eval firstvisit=if(isnull(earliestvisit),firstvisit,earliestvisit) | addinfo | eval isnew=if(firstvisit>=info_min_time, "New Visitors" , "Returning Visitors") | stats count by isnew
+search eventtype=pageview | `sourcename_lookup`  | top uri 
+search eventtype=resourceview method=GET status=200 eventtype=file-documents | `sourcename_lookup`  | eval uri_path=replace(uri_path, "//", "/") | search uri_path!="*robots.txt" | top uri_path
+search eventtype=resourceview method=GET  uri!="*flash_components*" eventtype=file-media | `sourcename_lookup`  | top uri_path
+`get_user_sessions` |  search eventcount>1 | eval duration = duration/60 | timechart  perc25(duration) as "25th Percentile", median(duration) as "Median", perc75(duration) as "75th Percentile"
+search eventtype=pageview eventtype=ua-browser-* eventtype=search-referer (q=* OR p=*) | `sourcename_lookup`  | eval q=if(isnull(q) AND isnotnull(p), p, q) | eval q=trim(lower(urldecode(q))) | top q  
+search eventtype=pageview eventtype=ua-browser-* eventtype=search-referer (q=* OR p=*) | `sourcename_lookup`  | eval q=if(isnull(q) AND isnotnull(p), p, q) | eval q=trim(lower(urldecode(q))) | rex field=q max_match=20 "(?<keywords>\w+)" | top limit=100 keywords | lookup stopwords keywords | fillnull alwaysone | search alwaysone=0 | sort limit=10 - count | fields - alwaysone
+`get_user_sessions` | eval user_type=case(eventcount=1, "bounce", eventcount<=5, "2-5 pages", eventcount<=10,"6-10 pages", eventcount>10, ">10 pages") | stats count by user_type 
+search index="summary_indexers" | timechart partial=f span=30m per_second(kb) as KBps | eval marker = "today" | eval _time = _time+1800 | append [search index="summary_indexers" earliest=-7d@d-30m latest=-6d@d-30m | timechart span=30m per_second(kb) as KBps | eval marker = "this day last week" | eval _time = _time+86400*7+1800] | timechart median(KBps) by marker 
+search index="summary_indexers" | timechart partial=f span=30m per_second(kb) as KBps | addinfo | eval marker = if(_time < info_min_time + 7*86400, "last week", "this week") | eval _time = if(_time < info_min_time + 7*86400, _time + 7*86400+1800, _time+1800) | chart median(KBps) by _time marker 
+search index="summary_forwarders" | timechart partial=f span=30m dc(guid) as distcount | eval marker = "today" | eval _time = _time+1800 | append [search earliest=-7d@d-30m latest=-6d@d-30m index="summary_forwarders" | timechart span=30m dc(guid) as distcount| eval marker = "this day last week" | eval _time = _time+86400*7+1800] | timechart median(distcount) by marker |  eval today=if(_time>now()-60,null(), today)
+`per_index_metrics` |  join type="outer" splunk_server [search `indexer_active_searches`] | stats sum(kb) as kb by splunk_server | search kb=0 | eval kb=round(kb, 4) | fields splunk_server kb activesearches | fillnull activesearches | rename splunk_server as "Splunk Server" kb as "Total KB" activesearches as "Active Ongoing Searches"
+`all_indexers` | search status = "idle" | fields splunk_server KB status | rename splunk_server as "Splunk Server" KB as "Total KB" status as "Current Status"
+`indexer_parsing_queue` | join type="outer" splunk_server [search `indexer_active_searches`] | search percentage > 50 | fillnull activesearches | fields splunk_server p95sz percentage activesearches | rename splunk_server as "Splunk Server"  p95sz as "95th Percentile Queue Size" percentage as "95th Percentile As Fraction of Max Queue Size" activesearches as "Active Ongoing Searches"
+`all_indexers` | search status="overloaded" | fields splunk_server avg_age parseQ_percentage indexQ_percentage status | rename splunk_server as "Splunk Server"  avg_age as "Average Latency (in Seconds)" parseQ_percentage as "Parsing Queue 95th Percentile As Fraction of Max Queue Size" indexQ_percentage as "Index Queue 95th Percentile As Fraction of Max Queue Size" status as "Current Status"
+`all_forwarders` | search status="missing" | sort - lastConnected | fields sourceHost sourceIp connectionType lastConnected status | rename sourceHost as "Forwarder" sourceIp as "Source IP" connectionType as "Forwarder Type" lastConnected as "Last Connected" status as "Current Status"  | fieldformat "Last Connected"=strftime('Last Connected', "%D %H:%M:%S %p")
+`all_forwarders` | search status="quiet" | sort - lastReceived | eval eps = round(eps,4) | fields sourceHost sourceIp connectionType lastConnected lastReceived KB eps status | rename sourceHost as "Forwarder" sourceIp as "Source IP" connectionType as "Forwarder Type" lastConnected as "Last Connected" lastReceived as "Last Data Received" KB as "Total KB" eps as "Average Events Per Second" status as "Current Status"  | fieldformat "Last Connected"=strftime('Last Connected', "%D %H:%M:%S %p")  | fieldformat "Last Data Received"=strftime('Last Data Received', "%D %H:%M:%S %p")
+`forwarder_metrics` | `forwarder_metrics_stats` avg(kb) as avg_kb_today by sourceIp  | join sourceIp type=outer [search earliest=-169h@h latest=-168h@h `forwarder_metrics`| stats avg(kb) as avg_kb_last_week by sourceIp] | fillnull avg_kb_today avg_kb_last_week | appendcols [search `indexer_ratio` | fields indexer_ratio] | streamstats first(indexer_ratio) as indexer_ratio |  where indexer_ratio*.5*avg_kb_last_week > avg_kb_today | eval kb_diff = abs(round(avg_kb_last_week - avg_kb_today, 4)) | eval kb_diff_perc = round(100*kb_diff/avg_kb_last_week, 4) | eval avg_kb_last_week = round(avg_kb_last_week, 4) | eval avg_kb_today = round(avg_kb_today, 4) |  fields sourceHost connectionType avg_kb_last_week avg_kb_today kb_diff kb_diff_perc | rename sourceHost as "Forwarder" avg_kb_last_week as "Average KBps Last Week" avg_kb_today as "Average KBps Today" connectionType as "Forwarder Type"  kb_diff as "KBps Difference from Last Week" kb_diff_perc as "Percentage Difference" 
+`forwarder_metrics` | `forwarder_metrics_stats` avg(kb) as avg_kb_today by sourceIp  | join sourceIp type=outer [search earliest=-169h@h latest=-168h@h `forwarder_metrics`| stats avg(kb) as avg_kb_last_week by sourceIp] | fillnull avg_kb_today avg_kb_last_week | appendcols [search `indexer_ratio` | fields indexer_ratio] | streamstats first(indexer_ratio) as indexer_ratio |  where indexer_ratio*avg_kb_last_week < .5*avg_kb_today | eval kb_diff = abs(round(avg_kb_last_week - avg_kb_today, 4)) | eval kb_diff_perc = round(100*kb_diff/avg_kb_last_week, 4) | eval avg_kb_last_week = round(avg_kb_last_week, 4) | eval avg_kb_today = round(avg_kb_today, 4) |  fields sourceHost connectionType avg_kb_last_week avg_kb_today kb_diff kb_diff_perc | rename sourceHost as "Forwarder" avg_kb_last_week as "Average KBps Last Week" avg_kb_today as "Average KBps Today" connectionType as "Forwarder Type"  kb_diff as "KBps Difference from Last Week" kb_diff_perc as "Percentage Difference" 
+`all_forwarders`
+`forwarder_metrics` |  eval lastReceived = if(kb>0, _time, null) | stats first(sourceIp) as sourceIp first(connectionType) as connectionType first(sourcePort) as sourcePort first(build) as build first(version) as version first(os) as os first(arch) as arch max(_time) as lastConnected max(lastReceived) as lastReceived sum(kb) as kb avg(tcp_eps) as avg_eps by sourceHost guid
+`all_indexers`
+`per_index_metrics` | stats sum(kb) as kb by splunk_server | join type="outer" splunk_server [ search `indexer_queue_stats`] | rename splunk_server as my_splunk_server
+`per_index_metrics` | stats sum(kb) as kb by splunk_server | join type="outer" splunk_server [ search `indexer_parsing_queue`] | rename splunk_server as my_splunk_server
+search index="summary_indexers" | eval mb=kb/1024 | eval _time = _time+1800 | rename my_splunk_server as splunk_server | timechart partial=f sum(mb) as MB by splunk_server 
+search index="_internal" source="*metrics.log" group=queue name=parsingqueue | timechart partial=f eval(perc95(current_size)*100/max(max_size)) by splunk_server
+search index="_internal" source="*metrics.log" group="per_index_thruput" | stats sum(kb) as kb
+`all_sourcetypes`  | search status="missing" | sort -lastReceived | fields lastReceived mysourcetype bytes status | rename lastReceived as "Last Connected" mysourcetype as "Sourcetype" bytes as "Bytes" status as "Status" | fieldformat "Last Connected"=strftime('Last Connected', "%D %H:%M:%S %p") 
+`all_sourcetypes`
+`sourcetype_metrics` | fillnull bytes | stats sum(bytes) as bytes max(lastReceived) as lastReceived by mysourcetype |  appendcols [search earliest=@d `all_sourcetypes` | stats sum(bytes) as bytes_today by mysourcetype | fields bytes_today] | where isnotnull(mysourcetype) |  rename mysourcetype as my_sourcetype
+`sourcetype_metrics`  | stats avg(bytes) as avg_bytes_today by mysourcetype  | join mysourcetype type=outer [search earliest=-169h@h latest=-168h@h `sourcetype_metrics`| stats avg(bytes) as avg_bytes_last_week by mysourcetype] | fillnull avg_bytes_today avg_bytes_last_week | eval avg_bytes_today=round(avg_bytes_today) | eval avg_bytes_last_week=round(avg_bytes_last_week) | appendcols [search `indexer_ratio` | fields indexer_ratio] | streamstats first(indexer_ratio) as indexer_ratio |  where indexer_ratio*.5*avg_bytes_last_week > avg_bytes_today | eval bytes_diff = abs(avg_bytes_last_week - avg_bytes_today) | eval bytes_diff_perc = round(100*bytes_diff/avg_bytes_last_week, 4) | fields mysourcetype avg_bytes_last_week avg_bytes_today bytes_diff bytes_diff_perc | rename mysourcetype as "Sourcetype" avg_bytes_last_week as "Average Bytes Last Week" avg_bytes_today as "Average Bytes Today" bytes_diff as "Bytes Difference from Last Week" bytes_diff_perc as "Percentage Difference" 
+`sourcetype_metrics`  | stats avg(bytes) as avg_bytes_today by mysourcetype  | join mysourcetype type=outer [search earliest=-169h@h latest=-168h@h `sourcetype_metrics`| stats avg(bytes) as avg_bytes_last_week by mysourcetype] | fillnull avg_bytes_today avg_bytes_last_week | eval avg_bytes_today=round(avg_bytes_today) | eval avg_bytes_last_week=round(avg_bytes_last_week) | appendcols [search `indexer_ratio` | fields indexer_ratio] | streamstats first(indexer_ratio) as indexer_ratio |  where indexer_ratio*avg_bytes_last_week < 0.5*avg_bytes_today | eval bytes_diff = abs(avg_bytes_last_week - avg_bytes_today) | eval bytes_diff_perc = round(100*bytes_diff/avg_bytes_last_week, 4) | fields mysourcetype avg_bytes_last_week avg_bytes_today bytes_diff bytes_diff_perc | rename mysourcetype as "Sourcetype" avg_bytes_last_week as "Average Bytes Last Week" avg_bytes_today as "Average Bytes Today" bytes_diff as "Bytes Difference from Last Week" bytes_diff_perc as "Percentage Difference" 
+search index="summary_sourcetypes" |  eval Mbytes = bytes/1048576 | eval _time = _time+1800 | rename my_sourcetype as mysourcetype | timechart partial=f sum(Mbytes) as Mbytes by mysourcetype 
+search index="summary_sourcetypes" |  eval Mbytes = bytes/1048576 | eval _time = _time+1800 | rename my_sourcetype as mysourcetype | timechart partial=f span=30m avg(Mbytes) as Mbytes by mysourcetype | bin _time as _day span=d | streamstats sum(*) as * by _day 
+`all_sources`
+`sourcetype_metrics` | fillnull bytes | stats sum(bytes) as bytes max(lastReceived) as lastReceived by source | rename source as my_source 
+search index="summary_sources" |  eval Mbytes = bytes/1048576 | eval _time = _time+1800 | rename my_source as source | timechart partial=f sum(Mbytes) as Mbytes by source 
+`all_hosts`
+`sourcetype_metrics` | fillnull bytes | stats sum(bytes) as bytes max(lastReceived) as lastReceived by host | rename host as my_host 
+search index="summary_hosts" |  eval Mbytes = bytes/1048576 | eval _time = _time+1800 | rename my_host as host | timechart partial=f sum(Mbytes) as Mbytes by host  
+`all_pools`
+`sourcetype_metrics` | fillnull bytes | stats sum(bytes) as bytes max(lastReceived) as lastReceived by pool | rename pool as my_pool 
+search index="summary_pools" |  eval Mbytes = bytes/1048576 | eval _time = _time+1800 | rename my_pool as pool | timechart partial=f sum(Mbytes) as Mbytes by pool  
+search index="summary_forwarders" | eval mb=kb/1024 | eval _time = _time+1800 | timechart partial=f sum(mb) as MB by sourceHost 
+search index="summary_forwarders" | delete
+search index="summary_indexers" | delete
+search index="summary_sources" | delete
+search index="summary_hosts" | delete
+search index="summary_pools" | delete
+search index="summary_sourcetypes" | delete
+search index="summary_indexers" |  eval _time = _time+1800 |  eval gb=kb/1048576 | bucket _time as day span=d | stats sum(gb) as gb by day | stats max(gb) as peakdailyusage, avg(gb) as avgdailyusage | eval peakdailyusage=round(peakdailyusage,2) | eval avgdailyusage=round(avgdailyusage,2)
+search index="summary_indexers" |  eval _time = _time+1800 |  eval gb=kb/1048576 | bucket _time as day span=d | stats sum(gb) as gb by day | sort limit=5 -gb | stats avg(gb) as mytop5 | eval mytop5=round(mytop5,2)
+search index="summary_indexers" |  eval _time = _time+1800 | timechart partial=f span=1d sum(kb) as KB | eval marker="this week" | append [search index="summary_indexers" earliest=-1w@w latest=@w | timechart span=1d sum(kb) as KB | eval marker = "prior week" | eval _time = _time+86400*7+1800] | append [search index="summary_indexers" earliest=-2w@w latest=-1w@w | timechart span=1d sum(kb) as KB | eval marker = "2 weeks ago" | eval _time = _time+86400*7*2+1800] | append [search index="summary_indexers" earliest=-3w@w latest=-2w@w | timechart span=1d sum(kb) as KB | eval marker = "3 weeks ago" | eval _time = _time+86400*7*3+1800] | eval gb=KB/1048576 | timechart median(gb) by marker
+search index="summary_indexers" |  eval _time = _time+1800 |  bucket _time as day span=d | eval gb=kb/1048576 | stats sum(gb) as gb by my_splunk_server, day | eval gb=round(gb,2) 
+search index="summary_pools" | eval _time = _time+1800 |  bucket _time as day span=d  | eval gb=bytes/1073741824  | stats sum(gb) as gb by my_pool, day | eval gb=round(gb,2) 
+search index=os sourcetype=cpu host=$host$ | multikv fields pctIdle | eval Percent_CPU_Load = 100 - pctIdle | timechart avg(Percent_CPU_Load) by host 
+search index=os sourcetype=vmstat host=$host$ | multikv fields loadAvg1mi | timechart avg(loadAvg1mi) by host 
+search index=os sourcetype=top host=$host$ | multikv fields pctCPU COMMAND | stats max(pctCPU) as maxCPU by host, COMMAND, _time | sort -maxCPU | dedup 5 host
+search index=os sourcetype=vmstat host=$host$ | multikv fields threads | timechart avg(threads) by host
+search index=os sourcetype=vmstat host=$host$ | multikv fields processes | timechart avg(processes) by host
+search index="os" sourcetype="ps" host="$host$" | multikv fields pctCPU, COMMAND | stats sum(pctCPU) as pctCPU by _time,COMMAND | timechart avg(pctCPU) by COMMAND
+search index="os" sourcetype="cpu" host=$host$ | multikv fields, pctUser, pctNice, pctSystem, pctIowait, pctIdle | eval pctNice=if(isnull(pctNice), 0, pctNice) | timechart avg(pctUser), avg(pctNice), avg(pctSystem), avg(pctIowait), avg(pctIdle)
+search index=os sourcetype=cpu host=$host$ | multikv fields pctUser, pctSystem, pctIdle | stats avg(pctUser), avg(pctSystem), avg(pctIdle) by host
+search index=os sourcetype=top host=$host$ | multikv fields pctCPU COMMAND | stats max(pctCPU) as maxCPU by host, COMMAND, _time | sort -maxCPU
+search index="os" sourcetype="ps" host=$host$| multikv fields pctCPU, COMMAND, USER | timechart avg(pctCPU) by USER
+search index=os sourcetype=top host=$host$ | multikv fields pctCPU COMMAND, USER | stats sum(pctCPU) as Total_CPU_Time by host, USER,  | sort -Total_CPU_Time 
+search index="os" sourcetype="ps" host=$host$ | multikv fields pctCPU, COMMAND, PID | bin _time | stats avg(pctCPU) as pctCPU by _time, PID, COMMAND, host | timechart sum(pctCPU) by COMMAND
+search index=os sourcetype=vmstat host=$host$ | multikv fields memFreePct, memUsedPct, swapUsedPct | timechart median(memFreePct) as Percent_Mem_Free, median(memUsedPct) as Percent_Mem_Used, median(swapUsedPct) as Percent_Swap
+search index=os sourcetype=ps host=$host$| multikv fields RSZ_KB, COMMAND | timechart eval(median(RSZ_KB)/1024) as ResidentMB by COMMAND
+search index=os sourcetype=ps host=$host$| multikv fields RSZ_KB, VSZ_KB, pctMEM, COMMAND | eval RSZ_MB=RSZ_KB/1024 | eval VSZ_MB=VSZ_KB/1024  | stats max(RSZ_MB) as Resident_MB, max(VSZ_MB) as Virtual_MB, max(pctMEM) as Percent_Memory by host, COMMAND, _time | dedup COMMAND | sort -Resident_MB  
+search index=os source=ps host=$host$ | multikv fields RSZ_KB, USER | eval RSZ_MB=RSZ_KB/1024 | eval time=_time | timechart eval(sum(RSZ_MB)/dc(time)) as Avg_Mem_Usage by USER useother=F limit=10 
+search index=os sourcetype=vmstat host=$host$ | multikv fields memUsedPct | timechart median(memUsedPct) by host 
+search index=os sourcetype=ps host=$host$ | multikv fields pctMEM, RSZ_KB, VSZ_KB, COMMAND | eval RSZ_MB=RSZ_KB/1024 | eval VSZ_MB=VSZ_KB/1024 | stats median(RSZ_MB) by VSZ_MB, host, COMMAND, _time | dedup 1 host, COMMAND sortby -median(RSZ_MB) 
+search index=os sourcetype=hardware earliest=-1d host=$host$ | dedup host | eval RealMemoryMB = RealMemoryMB/1024 | eval SwapMemoryMB = SwapMemoryMB/1024 | fields + RealMemoryMB, SwapMemoryMB, host | chart max(RealMemoryMB) as Real_Memory_MB, max(SwapMemoryMB) as Swap_Memory_MB by host
+search index=os source=ps host=$host$ | multikv fields RSZ_KB, USER, COMMAND | eval RSZ_MB=RSZ_KB/1024 | stats max(RSZ_MB) by USER, COMMAND| sort -max(RSZ_MB)
+search index="os" sourcetype="interfaces" host=* | multikv fields name, inetAddr, RXbytes, TXbytes | streamstats current=f last(TXbytes) as lastTX, last(RXbytes) as lastRX by Name  | eval time=_time | strcat Name "-" inetAddr "@" host Interface_Host | eval RX_Thruput_KB = (lastRX-RXbytes)/1024 | eval TX_Thruput_KB = (lastTX-TXbytes)/1024 | timechart eval(sum(TX_Thruput_KB)/dc(time)) by Interface_Host  
+search index="os" sourcetype="interfaces" host=$host$ | multikv fields Name, inetAddr | strcat Name "-" inetAddr "@" host Interface_Host | top Interface_Host limit=20 
+search index=os sourcetype=openPorts host=$host$ | HEAD LIMIT=1 | MULTIKV FIELDS Proto, Port | EVAL PortOverProto = case(Port == "8089", "Splunk Management Port", Port == "8000", "Splunk HTTP Port", Port == "21", "ftp", Port == "22", "ssh", Port == "23", "telnet", Port == "25", "smtp", Port == "69", "tftp", Port == "79", "finger", Port == "80", "http", Port == "88", "kerberos", Port == "143", "imap", Port == "161", "snmp", Port == "162", "snmptrap", Port == "179", "bgp", Port == "1521", "SQL*Net", 1==1, Port." / ".Proto) | CHART count BY PortOverProto | SORT count DESC | RENAME count AS "# of Connections Accepted"
+search index=os sourcetype=netstat host=$host$ | HEAD LIMIT=1 | MULTIKV FIELDS ForeignAddress | REX FIELD=ForeignAddress "(?<hostOnly>^.*)[:\.].+$" | FIELDS + hostOnly | WHERE hostOnly != "*" | RENAME hostOnly AS Address | CHART count BY Address | SORT count DESC | RENAME count AS "# of Connections to This Address"
+search index=os sourcetype=netstat host=$host$ | MULTIKV FIELDS State | SEARCH NOT (State="<n/a>") | TIMECHART count BY State
+search index=os sourcetype=openPorts | MULTIKV | STATS count BY Port | SORT count
+search index="os" sourcetype="df" host=$host$ | multikv fields FileSystem, UsePct | strcat host '@' Filesystem Host_FileSystem | timechart avg(UsePct) by Host_FileSystem | rename avg(UsePct) as %Used
+search index="os" sourcetype="df" | dedup host
+search index="os" sourcetype="df" host=$host$ | multikv fields UsePct, Filesystem |sort 1 UsePct, Filesystem, host
+search index="os" sourcetype="lsof" host=$host$ | multikv fields COMMAND, USER, TYPE, NAME filter REG | eval time=_time| timechart eval(count/dc(time)) by COMMAND
+search index="os" sourcetype="lsof" host=$host$ | multikv fields COMMAND, USER, TYPE, NAME | eval time =_time | timechart eval(count/dc(time)) by TYPE
+search index="os" sourcetype="lsof" host=$host$ | multikv fields COMMAND, USER, TYPE, NAME filter REG | eval time=_time | timechart eval(count/dc(time)) by USER
+search index="os" sourcetype="who" host=$host$ | multikv fields USERNAME, LINE, TIME | dedup USERNAME, LINE, TIME sortby +_time | sort -_time
+search index=os eventtype=failed_login host=$host$
+search index=os sourcetype=usersWithLoginPrivs host=$host$ | dedup host 
+search index="os" source="fschangemonitor" host=$host$ | timechart count by action
+search index="os" source="fschangemonitor" action=update host=$host$
+search source=WMI:$type$
+search source=WMI:$type$
+search source=WMI:localprocesses Name!=Total | `combine_names` | eval CPULoad = PercentProcessorTime | stats avg(CPULoad) by Name
+search source=WMI:localprocesses Name!=Total | `combine_names` | eval mem = PrivateBytes/(1024*1024) | stats sum(mem) as "Total Memory in MB" dc(host) as "# of Hosts" by Name | sort 100 -"Total Memory in MB" | eval "Total Memory in MB" = tostring('Total Memory in MB', "commas")
+rex field=Name "(?<Name>[^#]+)#\d+$"
+eval User_Name=if(isnotnull(Account_Name), Account_Name, User_Name)
+eval Workstation_Name=if(isnotnull(ComputerName), ComputerName, Workstation_Name)
+ search eventtype=pageview eventtype=ua-browser-* | `sourcename_lookup` | eval uri_path=if(uri_path="/", "/", rtrim(uri_path, "/"))| transaction clientip sourcename maxpause=1h keepevicted=t mvlist=t 
+search eventtype=web-traffic  eventtype=ua-bot-* NOT (eventtype=ua-bot-nagios OR eventtype=clientip-nonroutable OR eventtype=clientip-internal OR useragent="-") 
+search eventtype=pageview eventtype=ua-browser-* eventtype="search-referer" NOT (eventtype=visitor-type-paid OR eventype=internal-referer) | eval q=if(isnull(q) AND isnotnull(p), p, q) | eval q=urldecode(q) | eval q=trim(lower(q))  
+search host=* [ stats count | addinfo | eval range=info_max_time - info_min_time | eval search=if(range<=3605, "index=wi_summary_fivemin", if(range<=(86400+3600),"index=wi_summary_hourly","index=wi_summary_daily")) ]
+search host=* [ stats count | addinfo | eval range=info_max_time - info_min_time | eval search=if(range<=(86400+3600),"index=wi_summary_hourly","index=wi_summary_daily") ]
+lookup sourcenames source | eval sourcename=if(sourcename==" " OR isnull(sourcename),source,sourcename)
+search eventtype="cisco_firewall"
+search index=summary marker=cisco_firewall
+search index="_internal" source="*metrics.log" group=tcpin_connections | eval sourceHost=if(isnull(hostname), sourceHost,hostname) | eval connectionType=case(fwdType=="uf","Universal Forwarder", fwdType=="lwf", "Light Weight Forwarder",fwdType=="full", "Splunk Indexed", connectionType=="cooked" or connectionType=="cookedSSL","Splunk Forwarder", connectionType=="raw" or connectionType=="rawSSL","Legacy Forwarder")| eval build=if(isnull(build),"n/a",build) | eval version=if(isnull(version),"pre 4.2",version) | eval guid=if(isnull(guid),sourceHost,guid) | eval os=if(isnull(os),"n/a",os)| eval arch=if(isnull(arch),"n/a",arch) | eval my_splunk_server = splunk_server | fields connectionType sourceIp sourceHost sourcePort destPort kb tcp_eps tcp_Kprocessed tcp_KBps my_splunk_server build version os arch guid
+stats values(sourceHost) as sourceHost values(connectionType) as connectionType values(sourcePort) as sourcePort values(destPort) as destPort sum(kb) avg(tcp_eps) avg(tcp_Kprocessed) avg(tcp_KBps) 
+search index="_internal" source="*metrics.log" group=per_index_thruput series!="_*"
+search index="_internal" source="*metrics.log" group=per_sourcetype_thruput series!="audittrail" series!="scheduler" series!="splunk_web_access" series!="splunk_web_service" series!="splunkd" series!="splunkd_access" 
+search index="_internal" source="*metrics.log" group=queue name=parsingqueue | chart perc95(current_size_kb) as p95sz, max(max_size_kb) as maxsz by splunk_server | eval percentage=p95sz*100/maxsz
+search index="_internal" source="*metrics.log" group=queue name=indexqueue | chart perc95(current_size_kb) as p95sz, max(max_size_kb) as maxsz by splunk_server | eval percentage=p95sz*100/maxsz
+search index=_internal group=per_sourcetype_thruput series=access_* | eval latency=avg_age*ev | stats sum(latency) as latency sum(ev) as events by splunk_server | fillnull latency events
+`indexer_parsing_queue` | rename percentage as parseQ_percentage | appendcols [search `indexer_indexing_queue` | rename percentage as indexQ_percentage] | appendcols [search `indexer_queueing_latency` | eval avg_age=latency/events | fields avg_age] | fields splunk_server avg_age parseQ_percentage indexQ_percentage | fillnull avg_age
+stats first(sourceIp) as sourceIp first(connectionType) as connectionType first(sourcePort) as sourcePort first(build) as build first(version) as version first(os) as os first(arch) as arch $extraStats$ by sourceHost guid 
+search index="summary_forwarders" | eval _time = _time + 1800 | stats first(sourceIp) as sourceIp first(connectionType) as connectionType first(sourcePort) as sourcePort first(build) as build first(version) as version first(os) as os first(arch) as arch max(lastConnected) as lastConnected max(lastReceived) as lastReceived sum(kb) as KB first(avg_eps) as eps by sourceHost guid | join type=outer guid [search earliest=-30m latest=now `forwarder_metrics` | eval lastReceived = if(kb>0, _time, null) | stats first(sourceIp) as sourceIp first(connectionType) as connectionType first(sourcePort) as sourcePort first(build) as build first(version) as version first(os) as os first(arch) as arch  max(_time) as lastConnected1 max(lastReceived) as lastReceived1 sum(kb) as kb by sourceHost guid | addinfo | eval mystatus = if(lastConnected>(lastReceived+300) or kb==0,"quiet","dunno") ] | eval lastConnected=if(lastConnected1>lastConnected, lastConnected1, lastConnected) | eval lastReceived=if(lastReceived1>lastReceived, lastReceived1, lastReceived) |  addinfo | eval status = if(isnull(KB) or lastConnected<(info_max_time-900),"missing",if(mystatus="quiet","quiet","active")) | convert ctime(lastConnected) ctime(lastReceived) ctime(info_max_time) 
+`forwarder_metrics` | eval lastReceived = if(kb>0, _time, null) | `forwarder_lookup_stats("max(_time) as lastConnected max(lastReceived) as lastReceived sum(kb) as kb avg(tcp_eps) as avg_eps")` | append [search index="summary_forwarders" | eval _time = _time + 1800] | `forwarder_lookup_stats("max(lastConnected) as lastConnected max(lastReceived) as lastReceived first(kb) as KB first(avg_eps) as eps")` | addinfo | eval status = if(isnull(KB) or lastConnected<(info_max_time-900),"missing",if(lastConnected>(lastReceived+300) or KB==0,"quiet","active")) | sort sourceHost
+search index="summary_indexers" | eval _time = _time + 1800 | stats max(_time) as _time sum(kb) as KB first(avg_age) as avg_age first(parseQ_percentage) as parseQ_percentage first(indexQ_percentage) as indexQ_percentage by my_splunk_server |rename my_splunk_server as splunk_server | join type=outer splunk_server [search earliest=-30m latest=now `per_index_metrics` | stats max(_time) as time1 sum(kb) as kb by splunk_server | join type="outer" splunk_server [ search earliest=-30m latest=now  `indexer_queue_stats`] | addinfo |eval mystatus = if(kb==0, "idle", if(parseQ_percentage>50, "overloaded", if(indexQ_percentage>50,"overloaded","normal")))] | eval _time = if(time1>_time, time1, _time) | addinfo | eval status = if(isnull(mystatus), "dead",mystatus)
+`per_index_metrics` | stats max(_time) as _time sum(kb) as kb by splunk_server | join type="outer" splunk_server [ search `indexer_queue_stats`] | append [search index="summary_indexers" | rename my_splunk_server as splunk_server | eval _time = _time + 1800] | stats max(_time) as _time first(kb) as KB first(avg_age) as avg_age first(parseQ_percentage) as parseQ_percentage first(indexQ_percentage) as indexQ_percentage by splunk_server | eval status = if(KB==0, "idle", if(parseQ_percentage>50, "overloaded", if(indexQ_percentage>50,"overloaded","normal")))
+sourceHost="$forwarderName$" `forwarder_metrics` | eval lastReceived = if(kb>0, _time, null) | stats first(sourceIp) as sourceIp first(connectionType) as connectionType first(sourcePort) as sourcePort first(build) as build first(version) as version first(os) as os first(arch) as arch max(_time) as lastConnected max(lastReceived) as lastReceived sum(kb) as kb avg(tcp_eps) as avg_eps by sourceHost guid | append [search index="summary_forwarders" | eval _time = _time + 1800] | search sourceHost="$forwarderName$" | stats first(sourceIp) as sourceIp first(connectionType) as connectionType first(sourcePort) as sourcePort first(build) as build first(version) as version first(os) as os first(arch) as arch max(lastConnected) as lastConnected max(lastReceived) as lastReceived first(kb) as KB first(avg_eps) as eps by sourceHost guid | addinfo | eval status = if(isnull(KB) or lastConnected<(info_max_time-900),"missing",if(lastConnected>(lastReceived+300) or KB==0,"quiet","active")) 
+search earliest=-1h@h latest=now `per_index_metrics` | stats avg(kb) as indexer_avg_kb_today | join splunk_server type=outer [search earliest=-169h@h latest=-168h@h `per_index_metrics`| stats avg(kb) as indexer_avg_kb_last_week count | fillnull indexer_avg_kb_last_week | fields indexer_avg_kb_last_week] | fillnull indexer_avg_kb_today | eval indexer_ratio=indexer_avg_kb_today/indexer_avg_kb_last_week
+search earliest=@d latest=now `forwarder_metrics` | stats avg(kb) as all_fwd_avg_kb avg(tcp_eps) as all_fwd_avg_eps 
+search index="_internal" source="*license_usage.log" | rename _time as lastReceived s as source st as mysourcetype h as host b as bytes o as originator | eval my_splunk_server = splunk_server | fields lastReceived source mysourcetype host bytes pool originator my_splunk_server
+stats values(source) as source values(mysourcetype) as mysourcetype values(host) as host 
+`sourcetype_metrics` | stats max(lastReceived) as lastReceived sum(bytes) as bytes by mysourcetype | append [search index="summary_sourcetypes" | eval _time = _time + 1800 | rename my_sourcetype as mysourcetype bytes_today as summary_idx_bytes_today] | stats max(lastReceived) as lastReceived first(bytes) as bytes by mysourcetype | eval lastConnected=lastReceived | eval bytes_today=bytes+summary_idx_bytes_today | addinfo | eval status = if(isnull(bytes) or lastConnected<(info_max_time-900),"missing","active") 
+`sourcetype_metrics` | stats max(lastReceived) as lastReceived sum(bytes) as bytes by mysourcetype | append [search index="summary_sourcetypes" | eval _time = _time + 1800 | rename my_sourcetype as mysourcetype bytes_today as summary_idx_bytes_today] | stats max(lastReceived) as lastReceived first(bytes) as bytes by mysourcetype | eval lastConnected=lastReceived | eval bytes_today=bytes+summary_idx_bytes_today | addinfo | eval status = if(isnull(bytes) or lastConnected<(info_max_time-900),"missing","active") 
+`sourcetype_metrics` | stats sum(bytes) as bytes max(lastReceived) as lastReceived by source | fields source lastReceived bytes
+`usage_by_source` | stats max(lastReceived) as lastReceived sum(bytes) as bytes by source | append [search index="summary_sources" | eval _time = _time + 1800 | rename my_source as source] | stats max(lastReceived) as lastReceived first(bytes) as bytes by source 
+`sourcetype_metrics` | stats sum(bytes) as bytes max(lastReceived) as lastReceived by host | fields host bytes lastReceived
+`usage_by_host` | stats max(lastReceived) as lastReceived sum(bytes) as bytes by host | append [search index="summary_hosts" | eval _time = _time + 1800 | rename my_host as host] | stats max(lastReceived) as lastReceived first(bytes) as bytes by host 
+`sourcetype_metrics` | stats sum(bytes) as bytes max(lastReceived) as lastReceived by pool | fields pool bytes lastReceived
+`usage_by_pool` | stats max(lastReceived) as lastReceived sum(bytes) as bytes by pool | append [search index="summary_pools" | eval _time = _time + 1800 | rename my_pool as pool] | stats max(lastReceived) as lastReceived first(bytes) as bytes by pool 
+`sourcetype_metrics` | stats sum(bytes) max(lastReceived) by originator
+search index="_internal" source="*metrics.log" "system total" NOT user=* | head 1 | rename active_realtime_searches AS rt_searches | rename active_hist_searches AS hist_searches | eval total_searches = rt_searches + hist_searches | fields rt_searches hist_searches total_searches

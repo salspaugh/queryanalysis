@@ -1,0 +1,16 @@
+
+
+splunkqueries.db           
+    database of users, sessions, queries and parsed parts
+
+sql/
+    scripts to initialize database tables
+
+db.py
+    load and initialize the database
+
+operations_distribution/
+    scripts to count the number of occurrences of different types of operations
+
+lsa/
+    scripts to run and plot latent semantic analysis results
