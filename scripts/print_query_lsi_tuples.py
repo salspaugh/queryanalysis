@@ -1,45 +1,10 @@
 
+from queryanalysis.db import connect_db
+from queryutils.parse import extract_stages_with_cmd, parse_query
+from queryanalysis.lsi.contexts import *
 
-class Fingerprint(object):
-    
-    def __init__(self):
-        self.raw_argument = None
-        self.canonicalized_argument = None
-        self.role = None
-        self.type = None
-        self.datatype = None
-        self.previousfn = None
-    
-    def __repr__(self):
-        s = "["
-        for (attr, value) in self.__dict__.iteritems():
-            if not value:
-                value = "UNKNOWN"
-            if len(s) == 1:
-                s = ''.join([s, ': '.join([attr, str(value)])])
-            else:
-                s = ', '.join([s, ': '.join([attr, str(value)])])
-        s = ''.join([s, ']'])
-        return s
-
-class Function(object):
-
-    def __init__(self):
-        self.parsetreenode = None
-        self.name = None
-        self.template = None
-
-    def __repr__(self):
-        s = "["
-        for (attr, value) in self.__dict__.iteritems():
-            if not value:
-                value = "UNKNOWN"
-            if len(s) == 1:
-                s = ''.join([s, ': '.join([attr, str(value)])])
-            else:
-                s = ', '.join([s, ': '.join([attr, str(value)])])
-        s = ''.join([s, ']'])
-        return s
+import string
+import re
 
 def lsi_tuples_from_parsetree(tree):
     tuples = []
@@ -99,3 +64,21 @@ def space_around_nonletters(old):
         else:
             new = ''.join([new, old[i]])
     return new
+
+db = connect_db()
+cursor = db.execute("SELECT distinct(text), source FROM queries LIMIT 500")
+for (text, source) in cursor.fetchall():
+    p = None
+    try:
+        p = parse_query(text)
+    except:
+        pass
+    if p:
+        for (function, fingerprint) in lsi_tuples(p):
+            print text
+            print "source:", source
+            print "function:", function
+            print "fingerprint:", fingerprint
+            print 
+
+db.close()
