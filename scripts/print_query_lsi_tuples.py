@@ -74,7 +74,7 @@ for (text, source) in cursor.fetchall():
     except:
         pass
     if p:
-        for (function, fingerprint) in lsi_tuples(p):
+        for (function, fingerprint) in lsi_tuples_from_parsetree(p):
             print text
             print "source:", source
             print "function:", function
