@@ -26,8 +26,7 @@ class Function(object):
 
     def __init__(self):
         self.parsetreenode = None
-        self.name = None
-        self.template = None
+        self.signature = None
 
     def __repr__(self):
         s = "["
