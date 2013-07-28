@@ -16,7 +16,6 @@ APPS_DIR = "/Users/salspaugh/splunk-internship/data/splunk_apps/for_sharing/"
 MACROS_FILE = "macros.conf"
 SAVEDSEARCHES_FILE = "savedsearches.conf"
 
-
 SQL_DIR = "queryanalysis/sql/"
 MAIN_SQL = "main_schema.sql"
 CMDS_AND_ARGS_SQL = "commands_and_arguments_schema.sql"

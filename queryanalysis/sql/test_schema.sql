@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS test_lsi;
+CREATE TABLE test_lsi (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fingerprint TEXT NOT NULL,
+    function TEXT NOT NULL
+);
