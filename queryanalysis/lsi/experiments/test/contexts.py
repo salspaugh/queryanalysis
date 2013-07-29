@@ -2,8 +2,9 @@
 from argparse import ArgumentParser
 from queryanalysis.db import connect_db, execute_db_script
 import json
-import string
+import numpy as np
 import random
+import string
 
 SQL_DIR = "queryanalysis/sql/"
 TEST_SQL = "test_schema.sql"
@@ -24,6 +25,9 @@ class Context(object):
 
     def __repr__(self):
         return self.name
+    
+    def distance(self, other):
+        return (0 if self == other else np.inf) 
 
     def jsonify(self):
         return self.__dict__
@@ -38,11 +42,13 @@ class Context(object):
         return json.dumps(self, cls=self.ContextEncoder, **kwargs)
 
     @staticmethod
-    def deserialize(s):
-        d = json.loads(s)
+    def deserialize(d):
+        if not type(d) == type({}): 
+            d = json.loads(d)
         c = Context()
         c.name = d['name']
         return c
+    
 
 class Fingerprint(Context):
     pass

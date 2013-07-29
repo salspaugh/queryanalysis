@@ -40,10 +40,9 @@ class Point(object):
     def deserialize(s, labelcls):
         d = json.loads(s)
         location = d['location']
-        location = [float(x) for x in location]
+        location = np.array([float(x) for x in location])
         p = Point(labelcls.deserialize(d['label']), int(d['index']), location)
         return p
-        
 
 def info(s):
     sys.stderr.write(s)
@@ -66,7 +65,7 @@ def main():
     output = args.output
     if not output:
         output = args.tablename
-    output = ''.join([output, '.lsi'])    
+    output = ''.join([output, '.model'])    
     run(args.tablename, output, contexts)
 
 def run(tablename, output, contexts):
@@ -141,15 +140,15 @@ def svd(matrix, desired_singular_values):
     (left, S, right, iters, prods) = irlb(matrix, desired_singular_values)
     return (left, S, right)
 
-def output_map(output, rowidxs, rowpts, colidxs, colpts):
-    with open(output, 'w') as outputfile: 
+def output_map(outputfile, rowidxs, rowpts, colidxs, colpts):
+    with open(outputfile, 'w') as output: 
         rows = OrderedDict()
         for (label, idx) in rowidxs.iteritems():
             rows[idx] = Point(label, idx, list(rowpts[idx, :])).serialize()
         cols = OrderedDict()
         for (label, idx) in colidxs.iteritems():
             cols[idx] = Point(label, idx, list(colpts[idx, :])).serialize()
-        outputfile.write(json.dumps({'rows': rows, 'cols': cols}, indent=4, separators=(',', ': ')))
+        json.dump({'rows': rows.values(), 'cols': cols.values()}, output, indent=4, separators=(',', ': '))
 
 if __name__ == "__main__":
     main()
