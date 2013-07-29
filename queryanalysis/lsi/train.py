@@ -56,7 +56,9 @@ def main():
     parser.add_argument("package", metavar="PACKAGE",
                         help="the name of the module containing the \
                                 Fingerprint and Function class definitions")
-    parser.add_argument("--output", "-o", dest="output")
+    parser.add_argument("--output", "-o", dest="output",
+                        help="the name of the file where the model will be \
+                            stored (in JSON format); default is <TABLE>.model")
     
     args = parser.parse_args()
 
