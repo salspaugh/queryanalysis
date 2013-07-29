@@ -1,4 +1,6 @@
 # Project Specific
+data/*
+*.db
 *parsetab.py
 *.log
 parse.py
