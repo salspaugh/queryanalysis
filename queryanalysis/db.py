@@ -11,8 +11,8 @@ import sys
 
 BYTES_IN_MB = 1048576
 DATABASE = 'splunkqueries.db'
-QUERIES_CSV = "/Users/salspaugh/splunk-internship/data/storm_may2013/SearchAuditLogsApril1ToApril7.csv"
-APPS_DIR = "/Users/salspaugh/splunk-internship/data/splunk_apps/for_sharing/"
+QUERIES_CSV = "/Users/boss/Documents/jessica/for_sharing/SearchAuditLogsApril1ToApril7.csv"
+APPS_DIR = "/Users/boss/Documents/jessica/for_sharing/"
 MACROS_FILE = "macros.conf"
 SAVEDSEARCHES_FILE = "savedsearches.conf"
 
