@@ -1,6 +1,10 @@
 import json
 import numpy as np
-import configparser
+import sys
+if sys.version_info[0] < 3:
+    import ConfigParser
+else:
+    import configparser
 import editdist
 
 W_RAW = 1 

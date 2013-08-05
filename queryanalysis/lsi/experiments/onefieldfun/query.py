@@ -11,6 +11,6 @@ def print_fingerprints_to_query():
             line = line.strip()
             for (fingerprint, function) in extract_entries(line):
                 to_query.add(fingerprint)
-        print json.dumps([f.serialize() for f in to_query], indent=4, separators=(',', ': '))
+        print json.dumps([f.jsonify() for f in to_query], indent=4, separators=(',', ': '))
 
 print_fingerprints_to_query()
