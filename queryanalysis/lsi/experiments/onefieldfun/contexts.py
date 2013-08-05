@@ -42,15 +42,15 @@ class Fingerprint(object):
         if self == other:
             return 0
         else:
-            # raw_dist = get_raw_dist(self.raw_argument, other.raw_argument)
-            # canon_dist = get_canon_dist(self.canonicalized_argument, other.canonicalized_argument)
-            # role_dist = get_role_dist(self.role, other.role)
-            # type_dist = get_type_dist(self.type, other.type)
-            # dtype_dist = get_dtype_dist(self.datatype, other.datatype)
-            # if self.previousfn and other.previousfn:
-            #                 prevfn_dist = get_prevfn_dist(self.previousfn, other.previousfn)
-            #             else:
-            prevfn_dist = 0
+            raw_dist = get_raw_dist(self.raw_argument, other.raw_argument)
+            canon_dist = get_canon_dist(self.canonicalized_argument, other.canonicalized_argument)
+            role_dist = get_role_dist(self.role, other.role)
+            type_dist = get_type_dist(self.type, other.type)
+            dtype_dist = get_dtype_dist(self.datatype, other.datatype)
+            if self.previousfn and other.previousfn:
+                prevfn_dist = get_prevfn_dist(self.previousfn, other.previousfn)
+            else:
+            	prevfn_dist = 0
             return average_dists(raw_dist, canon_dist, role_dist, type_dist, dtype_dist, prevfn_dist)
             
     def average_dists(self,raw_dist, canon_dist, role_dist, type_dist, dtype_dist, prevfn_dist):

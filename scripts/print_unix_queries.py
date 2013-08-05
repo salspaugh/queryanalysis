@@ -8,22 +8,18 @@ import json
 import splparser
 import queryutils.parse as parser
 
-db = connect_db()
-cur = db.cursor()
+QUERIES = "/Users/boss/Documents/jessica/queryanalysis/queryanalysis/lsi/experiments/onefieldfun/test_queries.txt"
 
-cur.execute("select text from queries where source='unix'")
-rows = cur.fetchall()
+f = open(QUERIES, 'r')
 to_query = []
-for row in rows:
-	for col in row:
-		s = str(col)  
-		try:
-			p = splparser.parse(s)
-			tuples = lsi_tuples_from_parsetree(p)
-			to_query.append(tuples[0][1])
-			print tuples[0][1]
-		except Exception, e:
-			pass
-
-# print json.dumps([f.jsonify() for f in to_query])
+for line in f.readlines():
+	try:
+		p = splparser.parse(line)
+		tuples = lsi_tuples_from_parsetree(p)
+		to_query.append(tuples[0][1])
+		print tuples[0][1]
+	except Exception:
+		pass
+	
+# print json.dumps([q.jsonify() for q in to_query])
         

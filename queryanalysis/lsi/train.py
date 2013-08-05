@@ -1,6 +1,9 @@
 
 from argparse import ArgumentParser
-from collections import defaultdict, OrderedDict
+try:
+	from collections import defaultdict, OrderedDict
+except ImportError:
+	from ordereddict import OrderedDict
 from importlib import import_module
 from irlb import irlb
 from queryanalysis.db import connect_db

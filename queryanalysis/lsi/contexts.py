@@ -1,4 +1,5 @@
-
+import re
+import string
 
 class Fingerprint(object):
     
