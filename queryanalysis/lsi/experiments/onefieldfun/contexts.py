@@ -192,7 +192,8 @@ def space_around_nonletters(old):
 
 def average_dists(raw_dist, canon_dist, role_dist, type_dist, dtype_dist, prevfn_dist):
     sum_dists = W_RAW*raw_dist+W_CANON*canon_dist+W_ROLE*role_dist+W_TYPE*type_dist+W_DTYPE*dtype_dist+W_PREVFN*prevfn_dist
-    return sum_dists/6.0
+    total_dists = 4.0 # ONLY FOUR TOTAL RIGHT NOW SINCE DTYPE AND PREVFN ARE UNKNOWN
+    return sum_dists/total_dists
     
 def get_raw_dist(raw1,raw2):
     return (0 if raw1 == raw2 else 1)
