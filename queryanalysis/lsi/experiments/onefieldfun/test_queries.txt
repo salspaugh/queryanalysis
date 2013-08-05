@@ -1,0 +1,38 @@
+search sourcetype=cpu | eval Percent_CPU_Load = 100 - pctIdle | timechart avg(Percent_CPU_Load) by host
+search sourcetype=vmstat | timechart avg(loadAvg1mi) by host
+search sourcetype=vmstat | stats max(pctCPU) as maxCPU by host, COMMAND, _time | sort -maxCPU | dedup 5 host
+search sourcetype=vmstat | timechart avg(threads) by host 
+search sourcetype=vmstat  | timechart avg(processes) by host
+search sourcetype=ps | stats sum(pctCPU) as pctCPU by _time,COMMAND | timechart avg(pctCPU) by COMMAND
+search sourcetype=ps | timechart avg(pctCPU) by USER
+search sourcetype=cpu | eval pctNice=if(isnull(pctNice), 0, pctNice) | timechart avg(pctUser), avg(pctNice), avg(pctSystem), avg(pctIowait), avg(pctIdle)
+search sourcetype=top | stats max(pctCPU) as maxCPU by host, COMMAND, _time | sort -maxCPU
+search source=ps | timechart avg(pctCPU) by USER
+search source=lsof | search FD=txt TYPE=REG AND NOT (COMMAND=lsof OR COMMAND=lsof.sh OR COMMAND=iostat OR COMMAND=iostat.sh OR COMMAND=sar OR COMMAND=awk OR COMMAND=tee) | timechart count by COMMAND useother=F limit=10
+search sourcetype=vmstat | timechart median(memFreePct) as Percent_Mem_Free, median(memUsedPct) as Percent_Mem_Used, median(swapUsedPct) as Percent_Swap
+search sourcetype=ps | timechart eval(median(RSZ_KB)/1024) as ResidentMB by COMMAND
+search sourcetype=ps | eval RSZ_MB=RSZ_KB/1024 | eval VSZ_MB=VSZ_KB/1024  | stats max(RSZ_MB) as Resident_MB, max(VSZ_MB) as Virtual_MB, max(pctMEM) as Percent_Memory by host, COMMAND, _time | dedup COMMAND | sort -Resident_MB
+search source=ps | eval RSZ_MB=RSZ_KB/1024 | timechart eval(sum(RSZ_MB)/dc(time)) as Avg_Mem_Usage by USER 
+search sourcetype=vmstat | timechart median(memUsedPct) by host
+search sourcetype=hardware | dedup host | eval RealMemoryMB = RealMemoryMB/1024 | eval SwapMemoryMB = SwapMemoryMB/1024 | fields + RealMemoryMB, SwapMemoryMB, host | chart max(RealMemoryMB) as Real_Memory_MB, max(SwapMemoryMB) as Swap_Memory_MB by host
+search source=ps | eval RSZ_MB=RSZ_KB/1024 | stats max(RSZ_MB) by USER, COMMAND | sort -max(RSZ_MB)
+search sourcetype=df | strcat host '@' Filesystem Host_FileSystem | timechart avg(UsePct) by Host_FileSystem
+search sourcetype=lsof | timechart eval(count/dc(_time)) by COMMAND
+search sourcetype=lsof | timechart eval(count/dc(_time)) by TYPE
+search sourcetype=vmstat
+search sourcetype=ps
+search sourcetype=top
+search sourcetype=hardware
+search sourcetype=iostat
+search sourcetype=netstat
+search sourcetype=protocol
+search sourcetype=time
+search sourcetype=lsof
+search sourcetype=df
+search sourcetype=who
+search sourcetype=lastlog
+search sourcetype=interfaces
+search sourcetype=cpu
+search sourcetype=rlog
+search sourcetype=package
+search sourcetype=who | sort -_time
