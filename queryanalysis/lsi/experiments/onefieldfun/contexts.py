@@ -56,7 +56,7 @@ class Fingerprint(object):
             else:
                 prevfn_dist = 0
             distance = average_dists(raw_dist, canon_dist, role_dist, type_dist, dtype_dist, prevfn_dist)
-            print distance
+            print "Distance between %s and %s is %f" % (self, other, distance)
             return distance
             
     def jsonify(self):
