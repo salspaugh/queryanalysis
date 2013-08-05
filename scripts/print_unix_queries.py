@@ -1,7 +1,6 @@
 from queryanalysis.db import connect_db
 from queryutils.parse import extract_stages_with_cmd
 from queryanalysis.lsi.experiments.onefieldfun.contexts import *
-from queryanalysis.lsi.contexts import lsi_tuples_from_parsetree
 
 import string
 import json
@@ -17,9 +16,9 @@ for line in f.readlines():
 		p = splparser.parse(line)
 		tuples = lsi_tuples_from_parsetree(p)
 		to_query.append(tuples[0][1])
-		print tuples[0][1]
+		# print tuples[0][1]
 	except Exception:
 		pass
 	
-# print json.dumps([q.jsonify() for q in to_query])
+print json.dumps([q.jsonify() for q in to_query])
         
