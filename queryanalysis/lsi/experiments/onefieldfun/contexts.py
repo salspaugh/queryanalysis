@@ -13,7 +13,6 @@ class Fingerprint(object):
     def __init__(self):
         self.raw_argument = None
         self.canonicalized_argument = None
-        self.role = None
         self.type = None
         self.datatype = None
     
@@ -28,12 +27,15 @@ class Fingerprint(object):
                 s = ', '.join([s, ': '.join([attr, str(value)])])
         s = ''.join([s, ']'])
         return s
+
+    def __key(self):
+	    return (self.canonicalized_argument, self.type, self.datatype)
         
     def __eq__(self,other):
-        return self.type==other.type and self.canonicalized_argument==other.canonicalized_argument and self.role==other.role and self.datatype==other.datatype
+        return self.__key() == other.__key()
 
     def __hash__(self):
-        return hash(self.canonicalized_argument, self.type, self.datatype, self.role)
+        return hash(self.__key())
 
     def distance(self,other,**kwargs):
         if self == other:
