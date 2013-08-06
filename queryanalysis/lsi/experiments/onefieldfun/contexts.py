@@ -72,6 +72,7 @@ class Fingerprint(object):
         f.canonicalized_argument = d['canonicalized_argument']
         f.type = d['type']
         f.datatype = d['datatype']
+        return f
 
 class Function(object):
             
