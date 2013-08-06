@@ -9,6 +9,7 @@ from sqlite3 import OperationalError
 import sys
 
 SECTION = "basic"
+WEIGHTS_SECTION = "weights"
 
 def info(s):
     sys.stderr.write(s)
@@ -51,7 +52,8 @@ def main(conf_file):
     # Query model.
     info("Querying model.")
     queryfile = config.get(SECTION, "lsi_queries")
-    query_model(output, queryfile, contextsmod)
+    weights = dict(config.items(WEIGHTS_SECTION))
+    query_model(output, queryfile, contextsmod, **weights)
     
 def read_configuration(configuration):
     config = ConfigParser()
@@ -65,8 +67,8 @@ def initialize_and_load_table(dbmod, table):
 def train_model(table, output, contextsmod):
     train.run(table, output, contextsmod)
 
-def query_model(modelfile, queryfile, contextsmod):
-    query.run(modelfile, queryfile, contextsmod)
+def query_model(modelfile, queryfile, contextsmod, **kwargs):
+    query.run(modelfile, queryfile, contextsmod, **kwargs)
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Run an experiment.")

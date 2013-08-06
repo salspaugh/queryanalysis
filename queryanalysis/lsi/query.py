@@ -34,11 +34,11 @@ def main():
 
     run(args.model, args.queries, contexts)
 
-def run(modelfile, queryfile, contexts):
+def run(modelfile, queryfile, contexts, **kwargs):
     model = read_model_file(modelfile, contexts)
     queries = read_query_file(queryfile, contexts)
     for query in queries:
-        (top_matches, top_functions) = lookup(query, model)
+        (top_matches, top_functions) = lookup(query, model, **kwargs)
         print results_to_string(top_matches, top_functions)
 
 def read_model_file(modelfile, contexts):
@@ -52,8 +52,8 @@ def read_query_file(queryfile, contexts):
     with open(queryfile) as queries:
         return [contexts.Fingerprint.deserialize(d) for d in json.load(queries)]
 
-def lookup(query, model, n=5): # 
-    top_matches = lookup_matching_fingerprint_points(query, model['rows'])
+def lookup(query, model, n=5, **kwargs):
+    top_matches = lookup_matching_fingerprint_points(query, model['rows'], **kwargs)
     if len(top_matches) > 1:
         reference = average_points(top_matches)
     else: 
@@ -61,12 +61,12 @@ def lookup(query, model, n=5): #
     top_functions = lookup_top_functions(reference, model['cols'], n)
     return (top_matches, top_functions)
 
-def lookup_matching_fingerprint_points(fingerprint, fingerprint_points):
+def lookup_matching_fingerprint_points(fingerprint, fingerprint_points, **kwargs):
 	
 	### ADD **KWARGS AND MAYBE CHANGE THE 6 DOWN THERE AS A PARAMETER (AND TOP 5 CLOSEST FUNCTIONS?)
 	
     for other in fingerprint_points:
-        other.distance = fingerprint.distance(other.label)
+        other.distance = fingerprint.distance(other.label, **kwargs)
     fingerprint_points = sorted(fingerprint_points, key=lambda x: x.distance)
     exact = filter(lambda x: x.distance == 0, fingerprint_points)
     if len(exact) == 1:
