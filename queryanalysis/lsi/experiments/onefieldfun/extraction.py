@@ -43,7 +43,6 @@ def construct_parent_function(node):
     if len(command.descendant_arguments()) > 1:
         return None
     function.signature = command.template(distinguished_argument=node.raw).flatten()
-    function.parsetreenode = node
     return function
 
 def construct_fingerprint(node):
