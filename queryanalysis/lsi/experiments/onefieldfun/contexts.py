@@ -44,14 +44,13 @@ class Fingerprint(object):
         else:
             raw_dist = get_raw_dist(self.raw_argument, other.raw_argument)
             canon_dist = get_canon_dist(self.canonicalized_argument, other.canonicalized_argument)
-            role_dist = get_role_dist(str(self.role), str(other.role))
             type_dist = get_type_dist(str(self.type), str(other.type))
             dtype_dist = get_dtype_dist(self.datatype, other.datatype)
             if self.previousfn and other.previousfn:
                 prevfn_dist = get_prevfn_dist(self.previousfn, other.previousfn)
             else:
                 prevfn_dist = 0
-            distance = average_dists(raw_dist, canon_dist, role_dist, type_dist, dtype_dist, prevfn_dist, **kwargs)
+            distance = average_dists(raw_dist, canon_dist, type_dist, dtype_dist, prevfn_dist, **kwargs)
             print "Distance between %s and %s is %f" % (self, other, distance)
             print "\n"
             return distance
@@ -78,7 +77,6 @@ class Fingerprint(object):
         f = Fingerprint()
         f.raw_argument = d['raw_argument']
         f.canonicalized_argument = d['canonicalized_argument']
-        f.role = d['role']
         f.type = d['type']
         f.datatype = d['datatype']
         if d['previousfn']:
@@ -134,9 +132,9 @@ class Function(object):
         f.signature = d['signature']
         return f
 
-def average_dists(raw_dist, canon_dist, role_dist, type_dist, dtype_dist, prevfn_dist, **kwargs):
+def average_dists(raw_dist, canon_dist, type_dist, dtype_dist, prevfn_dist, **kwargs):
     kwargs = {key:int(value) for key, value in kwargs.iteritems()}
-    sum_dists = kwargs['w_raw']*raw_dist+kwargs['w_canon']*canon_dist+kwargs['w_role']*role_dist+kwargs['w_type']*type_dist+kwargs['w_dtype']*dtype_dist+kwargs['w_prevfn']*prevfn_dist
+    sum_dists = kwargs['w_raw']*raw_dist+kwargs['w_canon']*canon_dist+kwargs['w_type']*type_dist+kwargs['w_dtype']*dtype_dist+kwargs['w_prevfn']*prevfn_dist
     total_dists = kwargs['total_dists']
     return sum_dists/total_dists
     
@@ -145,12 +143,6 @@ def get_raw_dist(raw1,raw2):
     
 def get_canon_dist(canon1,canon2):
     return editdist.distance(canon1, canon2)
-    
-def get_role_dist(role1,role2):
-    config = read_configuration(CONF_FILE)
-    rolesfile = config.get(SECTION, 'roles')
-    config = read_configuration(rolesfile)
-    return int(config.get(role1.upper(), role2.upper()))
     
 def get_type_dist(type1,type2):
     config = read_configuration(CONF_FILE)
