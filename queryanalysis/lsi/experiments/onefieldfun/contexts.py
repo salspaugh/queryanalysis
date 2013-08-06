@@ -7,6 +7,8 @@ import ConfigParser
 import editdist
 from splparser.parsetree import ParseTreeNode
 
+# NORMALIZE TO 1
+
 W_RAW = 1 
 W_CANON = 5
 W_ROLE = 3
@@ -41,6 +43,9 @@ class Fingerprint(object):
         
     def __eq__(self,other):
         return type(self) == type(other) and self.canonicalized_argument == other.canonicalized_argument
+
+    def __hash__(self):
+        return self.canonicalized_argument.__hash__()
         
     def distance(self,other):
         if self == other:
@@ -57,6 +62,7 @@ class Fingerprint(object):
                 prevfn_dist = 0
             distance = average_dists(raw_dist, canon_dist, role_dist, type_dist, dtype_dist, prevfn_dist)
             print "Distance between %s and %s is %f" % (self, other, distance)
+            print "\n"
             return distance
             
     def jsonify(self):
@@ -105,6 +111,12 @@ class Function(object):
                 s = ', '.join([s, ': '.join([attr, str(value)])])
         s = ''.join([s, ']'])
         return s
+
+    def __eq__(self, other):
+        return self.parsetreenode == other.parsetreenode and self.signature == other.signature
+    
+    def __hash__(self):
+        return self.signature.__hash__()
     
     def jsonify(self):
         d = self.__dict__

@@ -52,7 +52,7 @@ def read_query_file(queryfile, contexts):
     with open(queryfile) as queries:
         return [contexts.Fingerprint.deserialize(d) for d in json.load(queries)]
 
-def lookup(query, model, n=5):
+def lookup(query, model, n=5): # 
     top_matches = lookup_matching_fingerprint_points(query, model['rows'])
     if len(top_matches) > 1:
         reference = average_points(top_matches)
@@ -62,6 +62,9 @@ def lookup(query, model, n=5):
     return (top_matches, top_functions)
 
 def lookup_matching_fingerprint_points(fingerprint, fingerprint_points):
+	
+	### ADD **KWARGS AND MAYBE CHANGE THE 6 DOWN THERE AS A PARAMETER (AND TOP 5 CLOSEST FUNCTIONS?)
+	
     for other in fingerprint_points:
         other.distance = fingerprint.distance(other.label)
     fingerprint_points = sorted(fingerprint_points, key=lambda x: x.distance)
@@ -75,7 +78,7 @@ def lookup_matching_fingerprint_points(fingerprint, fingerprint_points):
     if len(close) == 0:
         sys.stderr.write("ERROR: Zero fingerprints within finite distance. Consider modifying distance function.\n")
         exit()
-    return close if len(close) < 6 else close[:5] # TODO: Figure out how many to return
+    return close if len(close) < 6 else close[:5] ### TODO: Figure out how many to return
 
 def average_points(top_matches):
     total = float(sum([t.distance for t in top_matches]))
