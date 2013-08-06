@@ -204,12 +204,12 @@ def get_canon_dist(canon1,canon2):
 def get_role_dist(role1,role2):
     config = ConfigParser.ConfigParser()
     config.read(ROLES_FILE)
-    return int(config.get(role1, role2))
+    return int(config.get(role1.upper(), role2.upper()))
     
 def get_type_dist(type1,type2):
     config = ConfigParser.ConfigParser()
     config.read(TYPES_FILE)
-    return int(config.get(type1, type2))
+    return int(config.get(type1.upper(), type2.upper()))
                     
 def get_dtype_dist(dtype1, dtype2):
     return 0 # ALL UNKNOWN FOR NOW    
