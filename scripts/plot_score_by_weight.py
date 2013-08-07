@@ -44,6 +44,8 @@ def main(attribute, conffile, targetsfile, package):
         plot_scores.append(average)
     
     construct_plot(attribute, min, max, interval, plot_scores)
+
+    return
             
 def create_results(attribute, weight, config, conffile):
     
@@ -54,12 +56,11 @@ def create_results(attribute, weight, config, conffile):
     resultsfile = 'results/onefieldfun_' + attribute[2:] + '_' + str(weight) + '.results'
     config[BASIC_SECTION]['results'] = resultsfile
 
-    # if results file does not yet exist, make it and run experiment
-    # else, continue with next part (skip run experiment)
+    # if results file does not yet exist, make it
     if not os.path.isfile(resultsfile):
         make_file(resultsfile)
-        config.write()
-        os.system("python scripts/run_experiment.py " + conffile)
+    config.write()
+    os.system("python scripts/run_experiment.py " + conffile)
 
     return resultsfile
 
@@ -96,7 +97,7 @@ def construct_plot(attribute, min, max, interval, scores):
     plt.xlabel(attribute[2:] + ' attribute weight')
     plt.ylabel('average score of results')
     
-    response = raw_input("Would you like to SHOW plot, SAVE plot, or BOTH: ")
+    response = raw_input("Would you like to SHOW plot, SAVE plot, BOTH, or NONE: ")
     if response.upper() == 'SHOW' or response.upper() == 'BOTH':
         plt.show()
     if response.upper() == 'SAVE' or response.upper() == 'BOTH':
@@ -104,6 +105,7 @@ def construct_plot(attribute, min, max, interval, scores):
         plotfile = plotspath + 'onefieldfun_' + attribute[2:] + '_' + str(min) + 'to' + str(max) + 'by' + str(interval) + '.png'
         make_file(plotfile)
         plt.savefig(plotfile)
+    return
         
 def get_path_to_plots():
     currentpath = os.path.realpath(__file__)
