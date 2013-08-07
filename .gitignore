@@ -1,6 +1,4 @@
 # Project Specific
-.queries
-.model
 data/*
 *.db
 *parsetab.py
