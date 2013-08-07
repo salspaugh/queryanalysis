@@ -1,31 +1,31 @@
 [
     {
         "canonicalized_argument": "resident_mb",
-        "datatype": "FLOAT",
+        "datatype": null,
         "raw_argument": "Resident_MB",
         "type": "ID"
     },
     {
         "canonicalized_argument": "host",
-        "datatype": "ID",
+        "datatype": null,
         "raw_argument": "host",
         "type": "SPL_FIELD"
     },
     {
         "canonicalized_argument": "command",
-        "datatype": "WORD",
+        "datatype": null,
         "raw_argument": "COMMAND",
         "type": "WORD"
     },
     {
         "canonicalized_argument": "max_cpu",
-        "datatype": "FLOAT",
+        "datatype": null,
         "raw_argument": "maxCPU",
         "type": "WORD"
     },
     {
         "canonicalized_argument": "_time",
-        "datatype": "FLOAT",
+        "datatype": null,
         "raw_argument": "_time",
         "type": "SPL_FIELD"
     }

@@ -6,11 +6,20 @@
             "raw_argument": "maxCPU",
             "type": "WORD"
         },
-        [
-            {
-                "signature": "sort(descending(x))"
+        {
+            "plausible": [],
+            "required": [
+                {
+                    "signature": "sort(descending(x))"
+                }
+            ],
+            "fingerprint": {
+                "datatype": null,
+                "canonicalized_argument": "max_cpu",
+                "raw_argument": "maxCPU",
+                "type": "WORD"
             }
-        ]
+        }
     ],
     [
         {
@@ -19,11 +28,20 @@
             "raw_argument": "host",
             "type": "SPL_FIELD"
         },
-        [
-            {
-                "signature": "dedup(x)"
+        {
+            "plausible": [],
+            "required": [
+                {
+                    "signature": "dedup(x)"
+                }
+            ],
+            "fingerprint": {
+                "datatype": null,
+                "canonicalized_argument": "host",
+                "raw_argument": "host",
+                "type": "SPL_FIELD"
             }
-        ]
+        }
     ],
     [
         {
@@ -32,14 +50,23 @@
             "raw_argument": "COMMAND",
             "type": "WORD"
         },
-        [
-            {
-                "signature": "dedup(x)"
-            },
-            {
-                "signature": "timechart(groupby(count, x))"
+        {
+            "plausible": [],
+            "required": [
+                {
+                    "signature": "dedup(x)"
+                },
+                {
+                    "signature": "timechart(groupby(count, x))"
+                }
+            ],
+            "fingerprint": {
+                "datatype": null,
+                "canonicalized_argument": "command",
+                "raw_argument": "COMMAND",
+                "type": "WORD"
             }
-        ]
+        }
     ],
     [
         {
@@ -48,11 +75,20 @@
             "raw_argument": "Resident_MB",
             "type": "ID"
         },
-        [
-            {
-                "signature": "sort(descending(x))"
+        {
+            "plausible": [],
+            "required": [
+                {
+                    "signature": "sort(descending(x))"
+                }
+            ],
+            "fingerprint": {
+                "datatype": null,
+                "canonicalized_argument": "resident_mb",
+                "raw_argument": "Resident_MB",
+                "type": "ID"
             }
-        ]
+        }
     ],
     [
         {
@@ -61,10 +97,19 @@
             "raw_argument": "_time",
             "type": "SPL_FIELD"
         },
-        [
-            {
-                "signature": "sort(descending(x))"
+        {
+            "plausible": [],
+            "required": [
+                {
+                    "signature": "sort(descending(x))"
+                }
+            ],
+            "fingerprint": {
+                "datatype": null,
+                "canonicalized_argument": "_time",
+                "raw_argument": "_time",
+                "type": "SPL_FIELD"
             }
-        ]
+        }
     ]
 ]

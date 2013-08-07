@@ -4,6 +4,7 @@ import json
 from argparse import ArgumentParser
 from collections import defaultdict
 from queryanalysis.lsi.experiments.onefieldfun.extraction import extract_entries
+from queryanalysis.lsi.target import Target
 
 CLEAN_QUERIES = 'queryanalysis/lsi/experiments/onefieldfun/test_queries.txt'
 
@@ -18,15 +19,17 @@ def print_fingerprints_to_query():
     print json.dumps([f.jsonify() for f in to_query], indent=4, separators=(',', ': '))
 
 def print_functions_to_target():
-    to_target = defaultdict(set)
+    targets = {}
     with open(CLEAN_QUERIES) as queries:
         for line in queries.readlines():
             line = line.strip()
             for (fingerprint, function) in extract_entries(line):
-                to_target[fingerprint].add(function)
+                if not fingerprint in targets:
+                    targets[fingerprint] = Target(fingerprint)
+                targets[fingerprint].required.add(function)
     to_print = []
-    for (k,v) in to_target.iteritems():
-        to_print.append((k.jsonify(), [f.jsonify() for f in v]))
+    for (fingerprint, target) in targets.iteritems():
+        to_print.append((fingerprint.jsonify(), target.jsonify()))
     print json.dumps(to_print, indent=4, separators=(',', ': '))
 
 if __name__ == "__main__":

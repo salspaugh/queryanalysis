@@ -40,8 +40,9 @@ class Point(object):
         return json.dumps(self, cls=self.PointEncoder, **kwargs)
 
     @staticmethod
-    def deserialize(s, labelcls):
-        d = json.loads(s)
+    def deserialize(d, labelcls):
+        if not type(d) == type({}):
+            d = json.loads(d)
         location = d['location']
         location = np.array([float(x) for x in location])
         p = Point(labelcls.deserialize(d['label']), int(d['index']), location)

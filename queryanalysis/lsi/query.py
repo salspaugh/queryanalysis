@@ -37,8 +37,8 @@ class Result(object):
         if not type(d) == type({}): 
             d = json.loads(d)
         query = context.Fingerprint.deserialize(d['query'])
-        peers = [context.Fingerprint.deserialize(p) for p in d['peers']]
-        recommended = [context.Function.deserialize(p) for r in d['recommended']]
+        peers = [Point.deserialize(p, context.Fingerprint) for p in d['peers']]
+        recommended = [Point.deserialize(r, context.Function) for r in d['recommended']]
         score = d['score']
         r = Result(query, peers, recommended)
         r.score = score
