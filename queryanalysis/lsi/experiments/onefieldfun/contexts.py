@@ -46,8 +46,8 @@ class Fingerprint(object):
             type_dist = get_type_dist(str(self.type), str(other.type))
             dtype_dist = get_dtype_dist(self.datatype, other.datatype)
             distance = average_dists(raw_dist, canon_dist, type_dist, dtype_dist, **kwargs)
-            print "Distance between %s and %s is %f" % (self, other, distance)
-            print "\n"
+            # print "Distance between %s and %s is %f" % (self, other, distance)
+            # print "\n"
             return distance
             
     def jsonify(self):
