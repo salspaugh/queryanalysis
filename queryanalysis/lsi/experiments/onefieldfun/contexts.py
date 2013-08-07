@@ -29,7 +29,7 @@ class Fingerprint(object):
         return s
 
     def __key(self):
-	    return (self.canonicalized_argument, self.type, self.datatype)
+        return (self.canonicalized_argument, self.type, self.datatype)
         
     def __eq__(self,other):
         return self.__key() == other.__key()
@@ -142,6 +142,10 @@ def get_dtype_dist(dtype1, dtype2):
     config = read_configuration(conffile)
     datatypesfile = config.get(SECTION, 'datatypes')
     config = read_configuration(datatypesfile)
+    if dtype1 == None:
+        dtype1 = "None"
+    if dtype2 == None:
+        dtype2 = "None"
     return int(config.get(dtype1.upper(), dtype2.upper()))
     
 def read_configuration(configuration):
