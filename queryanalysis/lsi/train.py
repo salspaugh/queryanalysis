@@ -27,7 +27,7 @@ class Point(object):
         d = {}
         d['label'] = self.label.jsonify()
         d['index'] = self.index
-        d['location'] = self.location
+        d['location'] = list(self.location)
         return d
 
     class PointEncoder(json.JSONEncoder):

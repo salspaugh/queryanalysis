@@ -7,6 +7,43 @@ import json
 import numpy as np
 import sys
 
+class Result(object):
+    
+    def __init__(self, query, peers, recommended):
+        self.query = query
+        self.peers = peers
+        self.recommended = recommended
+        self.score = -1
+
+    def jsonify(self):
+        d = {}
+        d['query'] = self.query.jsonify()
+        d['peers'] = [p.jsonify() for p in self.peers]
+        d['recommended'] = [r.jsonify() for r in self.recommended]
+        d['score'] = self.score
+        return d
+
+    class ResultEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, Result):
+                return obj.jsonify()
+            return json.JSONEncoder.default(self, obj)
+
+    def serialize(self, **kwargs):
+        return json.dumps(self, cls=self.ResultEncoder, **kwargs)
+
+    @staticmethod
+    def deserialize(d, context):
+        if not type(d) == type({}): 
+            d = json.loads(d)
+        query = context.Fingerprint.deserialize(d['query'])
+        peers = [context.Fingerprint.deserialize(p) for p in d['peers']]
+        recommended = [context.Function.deserialize(p) for r in d['recommended']]
+        score = d['score']
+        r = Result(query, peers, recommended)
+        r.score = score
+        return r
+
 def main():
     parser = ArgumentParser(description="Query the LSI model.")
     parser.add_argument("model", metavar="MODEL",
@@ -15,6 +52,8 @@ def main():
                         help="get a prompt with which to query")
     parser.add_argument("--file", "-f", metavar="FILE", dest="queries",
                         help="query the model with the queries in FILE") 
+    parser.add_argument("--output", "-o", metavar="OUTPUT", dest="output",
+                        help="put the results in OUTPUT") 
     parser.add_argument("package", metavar="PACKAGE",
                         help="the name of the module containing the \
                                 Fingerprint and Function class definitions")
@@ -32,14 +71,19 @@ def main():
         parser.print_help()
         exit()
 
-    run(args.model, args.queries, contexts)
+    output = args.output
+    if not output:
+        output = ''.join('results/', args.package, '.results')
 
-def run(modelfile, queryfile, contexts, **kwargs):
+    run(args.model, args.queries, contexts, output)
+
+def run(modelfile, queryfile, contexts, output, **kwargs):
     model = read_model_file(modelfile, contexts)
     queries = read_query_file(queryfile, contexts)
+    results = []
     for query in queries:
-        (top_matches, top_functions) = lookup(query, model, **kwargs)
-        print results_to_string(top_matches, top_functions)
+        results.append(lookup(query, model, **kwargs))
+    output_results(results, output) 
 
 def read_model_file(modelfile, contexts):
     with open(modelfile) as model:
@@ -59,7 +103,7 @@ def lookup(query, model, n=5, **kwargs):
     else: 
         reference = top_matches[0].location
     top_functions = lookup_top_functions(reference, model['cols'], n)
-    return (top_matches, top_functions)
+    return Result(query, top_matches, top_functions)
 
 def lookup_matching_fingerprint_points(fingerprint, fingerprint_points, **kwargs):
 	
@@ -91,6 +135,11 @@ def lookup_top_functions(point, points, n):
         other.distance = np.linalg.norm(point - other.location)     
     points = sorted(points, key=lambda x: x.distance)
     return points[:n]
+
+def output_results(results, output):
+    results = [r.jsonify() for r in results]
+    with open(output, 'w') as o:
+        o.write(json.dumps(results, indent=4, separators=(',', ': ')))
 
 def results_to_string(top_matches, top_functions):
     s = "Functions to apply:"
