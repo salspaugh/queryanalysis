@@ -106,9 +106,6 @@ def lookup(query, model, n=5, **kwargs):
     return Result(query, top_matches, top_functions)
 
 def lookup_matching_fingerprint_points(fingerprint, fingerprint_points, **kwargs):
-	
-	### ADD **KWARGS AND MAYBE CHANGE THE 6 DOWN THERE AS A PARAMETER (AND TOP 5 CLOSEST FUNCTIONS?)
-	
     for other in fingerprint_points:
         other.distance = fingerprint.distance(other.label, **kwargs)
     fingerprint_points = sorted(fingerprint_points, key=lambda x: x.distance)
@@ -122,7 +119,7 @@ def lookup_matching_fingerprint_points(fingerprint, fingerprint_points, **kwargs
     if len(close) == 0:
         sys.stderr.write("ERROR: Zero fingerprints within finite distance. Consider modifying distance function.\n")
         exit()
-    return close if len(close) < 6 else close[:5] ### TODO: Figure out how many to return
+    return close if len(close) < 6 else close[:5] # TODO: Figure out how many to return
 
 def average_points(top_matches):
     total = float(sum([t.distance for t in top_matches]))
