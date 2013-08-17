@@ -17,9 +17,10 @@ def score(resultsfile, targetsfile, contexts):
         required = check_required(result, target) 
         plausible = check_plausible(result, target)
         result.score = REQUIRED_WEIGHT*required + PLAUSIBLE_WEIGHT*plausible      
-        max_score = max(result.score, max_score)
-    for result in results:
-        normalize(result, max_score)
+    # TODO: I think this is incorrect -- check this.
+    #    max_score = max(result.score, max_score)
+    #for result in results:
+    #    normalize(result, max_score)
     write_results(results, resultsfile)
 
 def read_results(resultsfile, contexts):
@@ -45,17 +46,21 @@ def get_matching_target(result, targets):
 
 def check_required(result, target):
     rscore = 0
+    total = 0
     for r in result.recommended:
+        total += 1 
         if r.label in target.required:
             rscore += 1
-    return rscore
+    return float(rscore) / float(total)
 
 def check_plausible(result, target):
     pscore = 0
+    total = 0 
     for r in result.recommended:
+        total += 1
         if r.label in target.plausible:
             pscore += 1
-    return pscore
+    return float(pscore) / float(total)
 
 def normalize(result, max_score):
     if max_score == 0:

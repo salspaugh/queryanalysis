@@ -9,7 +9,7 @@ IGNORE = ['multikv', 'rename']
 
 def extract_entries(query):
     try:
-        tree = parse(query)
+        tree = parse(str(query))
     except:
         return []
     if not tree:

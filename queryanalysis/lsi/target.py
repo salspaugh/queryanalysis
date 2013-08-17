@@ -31,7 +31,7 @@ class Target(object):
             d = json.loads(d)
         fingerprint = context.Fingerprint.deserialize(d['fingerprint'])
         required = [context.Function.deserialize(r) for r in d['required']]
-        plausible = [context.Fingerprint.deserialize(p) for p in d['plausible']]
+        plausible = [context.Function.deserialize(p) for p in d['plausible']]
         t = Target(fingerprint)
         t.required = required
         t.plausible = plausible

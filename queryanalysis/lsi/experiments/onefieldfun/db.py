@@ -3,6 +3,8 @@ from argparse import ArgumentParser
 from queryanalysis.db import connect_db, execute_db_script
 from queryanalysis.lsi.experiments.onefieldfun.extraction import extract_entries
 
+from splparser import parse
+
 SQL_INIT_CMDS = "queryanalysis/sql/onefieldfun_lsi.sql"
 DEBUG = False
 
